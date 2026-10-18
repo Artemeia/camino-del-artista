@@ -12,7 +12,7 @@ Registro de decisiones y avance. Sin datos personales del proceso: esos viven so
 - Nueva dirección visual (reemplaza "ecléctica tipo cuaderno de recortes"): introspectiva, serena, acuarela sutil, inspiración nórdica y cielo nocturno.
 - Modo día "Lavado" (papel claro, manchas de acuarela suaves) y modo noche "Nocturno" (ultramar profundo, auroras, estrellas tenues).
 - Paleta: ultramar, magenta, palo rosa y verde montaña en versiones empolvadas.
-- Tipografías: Cormorant Garamond (títulos y preguntas), Nunito Sans (interfaz), Caveat (detalles mínimos).
+- Tipografías: Cormorant Garamond (títulos, preguntas y navegación) y Mulish (interfaz).
 - Cada semana tiene su matiz de color (rotación de tono sobre los lavados).
 
 **Decisiones técnicas**
@@ -30,6 +30,10 @@ Registro de decisiones y avance. Sin datos personales del proceso: esos viven so
 - Check-in: luces de páginas de la semana, cita con el artista, actividades hechas y pendientes (con opción de pasarlas a la semana siguiente), sincronicidades y lo más significativo.
 - Semana 4: interfaz reducida.
 - Ajustes: modo día/noche/automático, fecha de inicio, pausar/retomar y reiniciar sin penalización, exportar e importar.
+
+**Ajuste de diseño (mismo día)**
+- La primera versión del MVP quedó más sobria que lo acordado. Se alineó con los diseños elegidos en el canvas "direcciones visuales" (Hoy y Mi semana, día y noche con aurora): aurora en acuarela con textura, Mulish como sans, botones Sí / Hoy no, puntos de la semana, panel verde "De tu lista", navegación con texto serif y pestaña Coach.
+- Desplegado en Railway: https://web-production-28909.up.railway.app (auto-deploy desde `main`).
 
 **Pendiente**
 - Fase 2: Cita con el Artista, Banco de ideas, chat con el coach, Mi camino (sendero o constelación), pantalla de Mi caja de herramientas.
