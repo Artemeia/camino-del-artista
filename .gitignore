@@ -1,0 +1,9 @@
+# Nunca subir registros personales al repositorio
+camino-*.json
+camino-*.txt
+datos/
+*.export.json
+
+node_modules/
+.DS_Store
+.env

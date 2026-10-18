@@ -1,0 +1,12 @@
+{
+  "name": "Camino del Artista",
+  "short_name": "Camino",
+  "lang": "es",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f4ef",
+  "theme_color": "#34428c",
+  "icons": [
+    { "src": "/icono.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
