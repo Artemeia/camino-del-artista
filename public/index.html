@@ -136,6 +136,11 @@ label.f{display:block; font-size:13px; font-weight:700; color:var(--green-label)
 input[type=text], input[type=date], textarea{width:100%; min-width:0; font:inherit; font-size:16px; color:var(--ink); background:var(--input-bg);
   border:1.5px solid var(--input-border); border-radius:14px; padding:11px 14px; min-height:46px}
 textarea{min-height:92px; resize:vertical; line-height:1.45}
+/* Safari en iPhone le da al campo de fecha un ancho propio que se sale de la tarjeta */
+input[type=date]{display:block; max-width:100%; -webkit-appearance:none; appearance:none; height:48px; line-height:24px; text-align:left}
+input[type=date]::-webkit-date-and-time-value{text-align:left; margin:0}
+input[type=date]::-webkit-calendar-picker-indicator{opacity:.6}
+.card{min-width:0; overflow-wrap:anywhere}
 input::placeholder, textarea::placeholder{color:var(--muted)}
 .add-row{display:flex; gap:8px}
 .add-btn{width:46px; height:46px; flex:none; border:0; border-radius:14px; background:var(--add-bg); color:var(--add-ink); display:flex; align-items:center; justify-content:center; cursor:pointer}
