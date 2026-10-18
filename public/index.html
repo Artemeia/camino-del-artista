@@ -117,8 +117,10 @@ section.view.active{display:block}
 .btn-wide{width:100%; margin-top:20px}
 
 /* ===== Puntos de la semana ===== */
-.dots{display:flex; justify-content:space-between; margin-top:16px; padding:0 2px}
-.dots div{display:flex; flex-direction:column; align-items:center; gap:5px}
+.dots{display:flex; justify-content:space-between; margin-top:12px}
+.dots button{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; min-width:44px; min-height:48px; padding:4px 0; border:0; background:none; border-radius:12px; cursor:pointer}
+.dots button:disabled{cursor:default; opacity:.55}
+.dots button:not(:disabled):active i{transform:scale(1.25)}
 .dots i{width:14px; height:14px; border-radius:50%; border:1.5px solid var(--dot-off); background:transparent; transition:all .9s ease}
 .dots i.on{background:var(--dot-on); border-color:var(--dot-on); box-shadow:0 0 8px var(--dot-glow)}
 .dots i.today{border-style:dashed; border-color:var(--dot-today)}
@@ -283,7 +285,8 @@ body.quiet .sky .aur.extra{display:none}
         <button type="button" class="pill pri" id="pagesYes" aria-pressed="false">Sí</button>
         <button type="button" class="pill sec" id="pagesNo" aria-pressed="false">Hoy no</button>
       </div>
-      <div class="dots" id="hoyDots" role="img"></div>
+      <div class="dots" id="hoyDots"></div>
+      <p class="small" style="margin-top:2px">Toca un día para marcar las páginas que hiciste antes.</p>
       <p class="small pages-msg" id="pagesMsg" hidden></p>
       <div class="word" id="wordBox">
         <label class="f" for="pagesWord" style="color:var(--soft)">Una palabra para cómo te sentiste <span style="font-weight:400">(opcional)</span></label>
@@ -366,7 +369,7 @@ body.quiet .sky .aur.extra{display:none}
 
     <section class="card" aria-labelledby="ciPagTitle" style="margin-top:30px">
       <h2 class="card-title" id="ciPagTitle">Páginas Matutinas</h2>
-      <div class="dots" id="ciDots" role="img"></div>
+      <div class="dots" id="ciDots"></div>
       <p class="small" id="ciPagesSummary" style="margin-top:12px"></p>
     </section>
 
@@ -631,16 +634,30 @@ function render(){
   renderHoy(w, wn, wk); renderSemana(wn, wk); renderCheckin(wn, wk);
 }
 
+// Cada punto es un botón: toca un día pasado (o hoy) para marcar o desmarcar sus páginas.
 function dots(container, wn){
   const t = today(); let n = 0;
   container.replaceChildren();
+  container.setAttribute("role", "group");
+  container.setAttribute("aria-label", "Páginas de esta semana. Toca un día para marcarlo.");
   for(const d of weekDates(wn)){
     const on = !!(S.pages[d] && S.pages[d].done); if(on) n++;
-    const isT = d === t;
-    container.append(el("div", {}, el("i", {class:(on ? "on " : "") + (isT ? "today" : "")}), el("span", {class:isT ? "today" : ""}, LETTERS[parse(d).getDay()])));
+    const isT = d === t, future = d > t;
+    const name = fmt(d, {weekday:"long", day:"numeric"});
+    container.append(el("button", {type:"button", disabled:future, "aria-pressed":String(on),
+        "aria-label":name + (future ? ", todavía no llega" : on ? ", páginas hechas" : ", sin marcar"),
+        onclick:() => toggleDay(d)},
+      el("i", {class:(on ? "on " : "") + (isT ? "today" : "")}),
+      el("span", {class:isT ? "today" : ""}, LETTERS[parse(d).getDay()])));
   }
-  container.setAttribute("aria-label", n === 0 ? "Esta semana aún no hay mañanas marcadas" : `Esta semana: ${n} ${n===1 ? "mañana" : "mañanas"} con páginas`);
   return n;
+}
+function toggleDay(d){
+  if(d > today()) return;
+  const cur = S.pages[d];
+  if(cur && cur.done) delete S.pages[d];
+  else { S.pages[d] = {done:true, word:(cur && cur.word) || ""}; toast(d === today() ? "Una luz más en tu camino." : "Marcado el " + fmt(d, {weekday:"long"}) + "."); }
+  save(); render();
 }
 
 function renderHoy(w, wn, wk){
