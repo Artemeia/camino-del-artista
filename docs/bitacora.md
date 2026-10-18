@@ -42,6 +42,8 @@ Registro de decisiones y avance. Sin datos personales del proceso: esos viven so
 - La app recuerda lo agendado desde ella, pero no ve el calendario: los cambios hechos en Google no vuelven a la app.
 - Recordatorios: se usan las notificaciones de Google Calendar. Notificaciones propias de la web quedan descartadas por ahora (requieren servidor de envío y, en iPhone, instalar la app en la pantalla de inicio).
 
+- Mensaje "Hoy en tu agenda" en la pantalla Hoy: muestra lo agendado desde la app para el día, con la hora, "Ahora" cuando está en curso y un mensaje sin culpa si ya pasó. Se actualiza cada minuto. No ve eventos creados directamente en Google.
+
 **Pendiente**
 - Fase 2: Cita con el Artista, Banco de ideas, chat con el coach, Mi camino (sendero o constelación), pantalla de Mi caja de herramientas.
 - Decidir si el repositorio queda público o privado.

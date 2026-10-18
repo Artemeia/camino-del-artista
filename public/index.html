@@ -240,6 +240,15 @@ input[type=time]::-webkit-date-and-time-value{text-align:left; margin:0}
 #evDurChips{display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:6px}
 #evDurChips .chip{padding:8px 4px}
 
+.today-note{margin-top:24px; padding:14px 16px; border-radius:18px; background:var(--lost-bg); border:1px solid var(--lost-border)}
+.today-note .label{color:var(--lost-ink)}
+.today-note ul{list-style:none; margin:6px 0 0; padding:0}
+.today-note li{display:flex; gap:12px; align-items:baseline; padding:6px 0}
+.today-note .when{flex:none; min-width:52px; font-weight:700; font-size:15px; color:var(--lost-ink)}
+.today-note .what{font-family:var(--serif); font-size:20px; line-height:1.25; color:var(--head)}
+.today-note .msg{display:block; font-family:var(--sans); font-size:14px; color:var(--soft); margin-top:2px}
+.today-note li.past .when, .today-note li.past .what{opacity:.6}
+
 /* ===== Semana 4: interfaz mínima ===== */
 body.quiet .hide-in-quiet{display:none !important}
 body.quiet .sky .aur.extra{display:none}
@@ -315,6 +324,14 @@ body.quiet .sky .aur.extra{display:none}
     <div class="eyebrow" id="hoyDate"></div>
     <h1 id="hoyTitle"></h1>
     <div class="sub" id="hoySub"></div>
+
+    <section class="today-note" id="todayNote" aria-labelledby="todayNoteLabel" hidden>
+      <div class="row-between">
+        <h2 class="label" id="todayNoteLabel">Hoy en tu agenda</h2>
+        <button class="text-link" type="button" data-agenda style="color:var(--eyebrow)">Ver</button>
+      </div>
+      <ul id="todayNoteList"></ul>
+    </section>
 
     <section class="card" aria-labelledby="pagTitle" style="margin-top:34px">
       <h2 class="card-title" id="pagTitle">Páginas Matutinas</h2>
@@ -783,7 +800,7 @@ function render(){
   const w = currentWeek(), wn = Math.max(1, w), wk = WEEKS[wn-1];
   document.documentElement.style.setProperty("--tint", wk.tint + "deg");
   document.body.classList.toggle("quiet", w === 4);
-  renderHoy(w, wn, wk); renderSemana(wn, wk); renderCheckin(wn, wk);
+  renderHoy(w, wn, wk); renderTodayNote(); renderSemana(wn, wk); renderCheckin(wn, wk);
 }
 
 // Cada punto es un botón: toca un día pasado (o hoy) para marcar o desmarcar sus páginas.
@@ -1150,7 +1167,7 @@ function renderCal(){
         el("button", {type:"button", class:"text-link", style:"color:var(--eyebrow)", onclick:() => openEv({edit:it})}, "Editar"),
         el("button", {type:"button", class:"text-link", style:"color:var(--muted)", onclick:() => {
           if(!confirm("¿Quitarlo de esta lista? Si ya está en Google Calendar, ahí sigue: bórralo también allá si no lo quieres.")) return;
-          S.scheduled = S.scheduled.filter(x => x.id !== it.id); save(); renderCal();
+          S.scheduled = S.scheduled.filter(x => x.id !== it.id); save(); renderCal(); render();
         }}, "Quitar de la lista"))));
   }
 }
@@ -1270,7 +1287,7 @@ function storeEv(){
   save(); return rec;
 }
 function afterSend(edited){
-  closeSheet("#evSheet");
+  closeSheet("#evSheet"); render();
   if($("#calSheet").classList.contains("open")) renderCal();
   toast(edited ? "Si ya estaba en Google, borra el evento anterior para no duplicarlo." : "Revisa y guarda en Google Calendar.");
 }
@@ -1288,6 +1305,28 @@ $("#evIcs").addEventListener("click", () => {
 });
 $$("[data-agenda]").forEach(b => b.addEventListener("click", openCal));
 $$("[data-agenda-kind]").forEach(b => b.addEventListener("click", () => openEv({kind:b.dataset.agendaKind})));
+
+/* ---------- Mensajito en Hoy: lo agendado para hoy ---------- */
+function renderTodayNote(){
+  const t = today(), now = new Date();
+  const items = (S.scheduled || []).filter(it => occursOn(it, t)).sort((a,b) => a.time < b.time ? -1 : 1);
+  const box = $("#todayNote"); box.hidden = !items.length;
+  if(!items.length) return;
+  const ul = $("#todayNoteList"); ul.replaceChildren();
+  for(const it of items){
+    const [h, mi] = it.time.split(":").map(Number);
+    const start = new Date(); start.setHours(h, mi, 0, 0);
+    const end = new Date(start.getTime() + it.dur * 60000);
+    const state = now < start ? "next" : now <= end ? "now" : "past";
+    let msg;
+    if(state === "now") msg = it.kind === "cita" ? "Es ahora. Sola, sin agenda, a jugar." : "Es ahora. Unos minutos para ti bastan.";
+    else if(state === "next") msg = it.kind === "cita" ? "Hoy es tu cita. Sin propósito, solo curiosidad." : it.kind === "minutos" ? "Un rato corto para lo de tu semana." : "";
+    else msg = "Si no alcanzaste, está bien. Mañana sigue.";
+    ul.append(el("li", {class:state === "past" ? "past" : ""},
+      el("span", {class:"when"}, state === "now" ? "Ahora" : it.time),
+      el("span", {class:"what"}, it.title, msg ? el("span", {class:"msg"}, msg) : null)));
+  }
+}
 
 /* ================= Ajustes ================= */
 function renderSettings(){
@@ -1346,7 +1385,7 @@ $("#importJson").addEventListener("change", async e => {
 applyTheme(); render();
 let lastDay = today();
 const refresh = () => { if(today() !== lastDay){ lastDay = today(); render(); } };
-setInterval(refresh, 60000);
+setInterval(() => { refresh(); renderTodayNote(); }, 60000);
 document.addEventListener("visibilitychange", () => { if(!document.hidden) refresh(); });
 })();
 </script>
