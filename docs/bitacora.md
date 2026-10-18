@@ -35,6 +35,13 @@ Registro de decisiones y avance. Sin datos personales del proceso: esos viven so
 - La primera versión del MVP quedó más sobria que lo acordado. Se alineó con los diseños elegidos en el canvas "direcciones visuales" (Hoy y Mi semana, día y noche con aurora): aurora en acuarela con textura, Mulish como sans, botones Sí / Hoy no, puntos de la semana, panel verde "De tu lista", navegación con texto serif y pestaña Coach.
 - Desplegado en Railway: https://web-production-28909.up.railway.app (auto-deploy desde `main`).
 
+**Agenda con Google Calendar (mismo día)**
+- Botón "Agendar en mi calendario" (Hoy), "Agendar minutos para mis actividades" (Semana) y "Agendar la próxima cita" (Check-in).
+- Calendario mensual dentro de la app: se toca un día y se agenda. Tipos: Cita con el Artista, Minutos diarios u otra cosa. Todo editable: título, día, hora, duración, nota y repetición (una vez, días seguidos, días que elijo, cada semana, hasta una fecha).
+- Decisión: la app no se conecta a Google con login. Arma el evento y abre Google Calendar prellenado; ella revisa, ajusta el aviso y guarda. Alternativa: archivo .ics para otros calendarios, con aviso 10 minutos antes.
+- La app recuerda lo agendado desde ella, pero no ve el calendario: los cambios hechos en Google no vuelven a la app.
+- Recordatorios: se usan las notificaciones de Google Calendar. Notificaciones propias de la web quedan descartadas por ahora (requieren servidor de envío y, en iPhone, instalar la app en la pantalla de inicio).
+
 **Pendiente**
 - Fase 2: Cita con el Artista, Banco de ideas, chat con el coach, Mi camino (sendero o constelación), pantalla de Mi caja de herramientas.
 - Decidir si el repositorio queda público o privado.
