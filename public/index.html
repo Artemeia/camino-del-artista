@@ -780,13 +780,59 @@ function el(tag, attrs, ...kids){
   return n;
 }
 let tT;
-function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(tT); tT = setTimeout(()=>t.classList.remove("show"), 2600); }
+function toast(m){ const t = $("#toast"); t.textContent = m; t.classList.add("show"); clearTimeout(tT); tT = setTimeout(()=>t.classList.remove("show"), m.length > 60 ? 9000 : 2600); }
 const uid = () => Math.random().toString(36).slice(2,10);
 function svgEdit(){
   const s = document.createElementNS("http://www.w3.org/2000/svg","svg");
   for(const [k,v] of Object.entries({width:18, height:18, viewBox:"0 0 24 24", fill:"none", stroke:"currentColor", "stroke-width":1.8, "stroke-linecap":"round", "aria-hidden":"true"})) s.setAttribute(k, v);
   for(const d of ["M4 20h4L19 9l-4-4L4 16v4z", "M13.5 6.5l4 4"]){ const p = document.createElementNS("http://www.w3.org/2000/svg","path"); p.setAttribute("d", d); s.append(p); }
   return s;
+}
+
+/* ================= Errores: avisar sin romper ================= */
+let errShown = false;
+function reportError(where, e){
+  console.error(where, e);
+  if(errShown) return; errShown = true;
+  toast("Algo falló en " + where + ". Tus datos siguen guardados. Avísame este mensaje: " + (e && e.message ? e.message : e));
+  setTimeout(() => { errShown = false; }, 8000);
+}
+function safe(where, fn){ try{ fn(); }catch(e){ reportError(where, e); } }
+window.addEventListener("error", e => reportError("la app", e.error || e.message));
+
+/* Repara datos guardados por versiones anteriores o incompletos */
+const isDate = v => typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v);
+const isTime = v => typeof v === "string" && /^\d{2}:\d{2}$/.test(v);
+function sanitize(){
+  if(!isDate(S.startDate)) S.startDate = DEFAULT.startDate;
+  if(S.pausedAt && !isDate(S.pausedAt)) S.pausedAt = null;
+  S.pauseDays = Number.isFinite(S.pauseDays) && S.pauseDays >= 0 ? Math.round(S.pauseDays) : 0;
+  if(!["auto","light","dark"].includes(S.theme)) S.theme = "auto";
+  const pages = {};
+  for(const [d, v] of Object.entries(S.pages && typeof S.pages === "object" ? S.pages : {})){
+    if(isDate(d) && v && typeof v === "object") pages[d] = v.done ? {done:true, word:typeof v.word === "string" ? v.word : ""} : {done:false};
+  }
+  S.pages = pages;
+  S.activities = (Array.isArray(S.activities) ? S.activities : []).filter(a => a && typeof a.title === "string" && a.title.trim()).map(a => ({
+    id:String(a.id || uid()), week:Math.min(12, Math.max(1, Math.round(Number(a.week)) || 1)), title:a.title, chapter:String(a.chapter || ""),
+    note:String(a.note || ""), done:!!a.done, created:isDate(a.created) ? a.created : today(), carried:!!a.carried}));
+  if(!S.checkins || typeof S.checkins !== "object" || Array.isArray(S.checkins)) S.checkins = {};
+  if(!S.toolbox || typeof S.toolbox !== "object" || Array.isArray(S.toolbox)) S.toolbox = {};
+  const end = addDays(S.startDate, S.pauseDays + 83);
+  S.scheduled = (Array.isArray(S.scheduled) ? S.scheduled : []).filter(it => it && isDate(it.date)).map(it => {
+    const wd = (parse(it.date).getDay() + 6) % 7;
+    const r = it.repeat && typeof it.repeat === "object" ? it.repeat : {};
+    const mode = ["once","daily","days","weekly"].includes(r.mode) ? r.mode : "once";
+    const rep = {mode};
+    if(mode === "daily") rep.count = Math.min(90, Math.max(2, Math.round(Number(r.count)) || 7));
+    if(mode === "days" || mode === "weekly") rep.until = isDate(r.until) && r.until >= it.date ? r.until : end;
+    if(mode === "days"){ const ds = (Array.isArray(r.days) ? r.days : []).map(Number).filter(n => n >= 0 && n <= 6); rep.days = ds.length ? [...new Set(ds)].sort() : [wd]; }
+    const dur = Math.round(Number(it.dur));
+    return {id:String(it.id || uid()), kind:["cita","minutos","otra"].includes(it.kind) ? it.kind : "otra",
+      title:typeof it.title === "string" && it.title.trim() ? it.title : "Sin título", date:it.date,
+      time:isTime(it.time) ? it.time : "10:00", dur:dur >= 5 && dur <= 480 ? dur : 30, repeat:rep,
+      note:typeof it.note === "string" ? it.note : "", created:isDate(it.created) ? it.created : today()};
+  });
 }
 
 /* ================= Tema ================= */
@@ -801,7 +847,11 @@ function render(){
   const w = currentWeek(), wn = Math.max(1, w), wk = WEEKS[wn-1];
   document.documentElement.style.setProperty("--tint", wk.tint + "deg");
   document.body.classList.toggle("quiet", w === 4);
-  renderHoy(w, wn, wk); renderTodayNote(); renderSemana(wn, wk); renderCheckin(wn, wk);
+  // Cada pantalla se dibuja por separado: si una falla, las demás siguen funcionando.
+  safe("Hoy", () => renderHoy(w, wn, wk));
+  safe("Agenda de hoy", renderTodayNote);
+  safe("Semana", () => renderSemana(wn, wk));
+  safe("Check-in", () => renderCheckin(wn, wk));
 }
 
 // Cada punto es un botón: toca un día pasado (o hoy) para marcar o desmarcar sus páginas.
@@ -1383,10 +1433,11 @@ $("#importJson").addEventListener("change", async e => {
 });
 
 /* ================= Inicio ================= */
-applyTheme(); render();
+safe("tus datos", () => { sanitize(); save(); });
+safe("el tema", applyTheme); render();
 let lastDay = today();
 const refresh = () => { if(today() !== lastDay){ lastDay = today(); render(); } };
-setInterval(() => { refresh(); renderTodayNote(); }, 60000);
+setInterval(() => { refresh(); safe("Agenda de hoy", renderTodayNote); }, 60000);
 document.addEventListener("visibilitychange", () => { if(!document.hidden) refresh(); });
 })();
 </script>
