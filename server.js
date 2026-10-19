@@ -35,6 +35,9 @@ const SECURITY_HEADERS = {
   "Referrer-Policy": "no-referrer",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
   "X-Robots-Tag": "noindex, nofollow",
+  // Siempre pedir la versión más reciente: así el acceso directo del teléfono
+  // muestra los cambios apenas se despliegan.
+  "Cache-Control": "no-cache",
 };
 
 function send(res, status, body, type) {
