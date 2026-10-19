@@ -2,11 +2,18 @@
 // Solo entrega los archivos de /public. No recibe ni guarda ningún dato:
 // todos los registros viven en el navegador de quien usa la app.
 const http = require("http");
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 
 const PORT = process.env.PORT || 3000;
 const ROOT = path.join(__dirname, "public");
+
+// Versión de este despliegue: el commit que publicó Railway o, si no existe, una huella del index.
+// Se escribe dentro de la página para que la app sepa cuándo hay una más nueva.
+const VERSION =
+  (process.env.RAILWAY_GIT_COMMIT_SHA || "").slice(0, 12) ||
+  crypto.createHash("sha256").update(fs.readFileSync(path.join(ROOT, "index.html"))).digest("hex").slice(0, 12);
 
 const TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -52,6 +59,7 @@ http
     }
     const url = decodeURIComponent((req.url || "/").split("?")[0]);
     if (url === "/salud") return send(res, 200, "ok", "text/plain; charset=utf-8");
+    if (url === "/version") return send(res, 200, VERSION, "text/plain; charset=utf-8");
 
     let file = path.normalize(path.join(ROOT, url === "/" ? "index.html" : url));
     if (!file.startsWith(ROOT)) {
@@ -62,7 +70,8 @@ http
       fs.readFile(file, (err2, data) => {
         if (err2) return send(res, 500, "Error", "text/plain; charset=utf-8");
         const type = TYPES[path.extname(file)] || "application/octet-stream";
-        send(res, 200, req.method === "HEAD" ? "" : data, type);
+        const body = path.extname(file) === ".html" ? data.toString("utf8").replace("__APP_VERSION__", VERSION) : data;
+        send(res, 200, req.method === "HEAD" ? "" : body, type);
       });
     });
   })

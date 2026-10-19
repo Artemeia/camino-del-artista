@@ -209,6 +209,11 @@ nav.tabs button[aria-current="page"]{font-weight:600; color:var(--head)}
 .tel strong{font-family:var(--serif); font-size:24px; color:var(--head)}
 .danger{border:1.5px solid var(--accent)}
 
+.update-bar{position:fixed; left:12px; right:12px; top:calc(10px + env(safe-area-inset-top)); z-index:30; max-width:520px; margin:0 auto;
+  display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 10px 10px 16px; border-radius:18px;
+  background:var(--card); border:1px solid var(--card-border); box-shadow:var(--card-shadow); color:var(--ink); font-size:15px}
+.update-bar[hidden]{display:none}
+.update-bar .pill{height:42px; padding:0 16px; flex:none}
 .toast{position:fixed; left:50%; bottom:calc(86px + env(safe-area-inset-bottom)); transform:translateX(-50%); background:var(--head); color:var(--bg);
   padding:10px 18px; border-radius:999px; font-weight:700; font-size:14px; z-index:30; opacity:0; transition:opacity .3s; pointer-events:none; max-width:88vw; text-align:center}
 .toast.show{opacity:1}
@@ -667,11 +672,16 @@ body.quiet .sky .aur.extra{display:none}
         <button class="pill sec" type="button" id="exportJson">Exportar JSON</button>
         <button class="pill sec" type="button" id="exportTxt">Exportar texto</button>
       </div>
+      <button class="pill sec" type="button" id="reloadApp" style="width:100%; margin-top:10px">Cargar la última versión de la app</button>
       <label class="pill sec" style="display:flex; align-items:center; justify-content:center; margin-top:10px">Importar respaldo<input type="file" id="importJson" accept="application/json" class="sr"></label>
     </section>
   </div>
 </div>
 
+<div class="update-bar" id="updateBar" role="status" hidden>
+  <span>Hay una versión nueva de tu app.</span>
+  <button type="button" class="pill pri" id="updateNow">Actualizar</button>
+</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -1479,6 +1489,26 @@ function seedBookTasks(){
 }
 
 safe("tus datos", () => { sanitize(); seedBookTasks(); save(); });
+
+/* ================= Actualizaciones =================
+   El servidor escribe aquí la versión con la que entregó esta página.
+   Al abrir la app o volver a ella, pregunta si hay una más nueva y ofrece recargar.
+   Recargar no toca tus datos: viven en el teléfono, separados del código. */
+const APP_VERSION = "__APP_VERSION__";
+async function checkUpdate(){
+  if(APP_VERSION.startsWith("__")) return;
+  try{
+    const r = await fetch("/version", {cache:"no-store"}); if(!r.ok) return;
+    const v = (await r.text()).trim();
+    if(v && v !== APP_VERSION) $("#updateBar").hidden = false;
+  }catch(e){}
+}
+function reloadApp(){ location.reload(); }
+$("#updateNow").addEventListener("click", reloadApp);
+$("#reloadApp").addEventListener("click", reloadApp);
+document.addEventListener("visibilitychange", () => { if(document.visibilityState === "visible") checkUpdate(); });
+window.addEventListener("pageshow", checkUpdate);
+setInterval(checkUpdate, 30*60*1000);
 safe("el tema", applyTheme); render();
 let lastDay = today();
 const refresh = () => { if(today() !== lastDay){ lastDay = today(); render(); } };
