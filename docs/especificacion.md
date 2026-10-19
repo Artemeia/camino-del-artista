@@ -74,7 +74,8 @@ Decisión del 18 de octubre de 2026: reemplaza la dirección anterior "ecléctic
   8. Mi caja de herramientas: las técnicas que me han servido cuando me siento perdida.
 
 ## Actividades de la semana
-- Las anoto yo, con mis palabras: título corto, capítulo del libro opcional y nota opcional. La app no trae precargadas las tareas del libro.
+- Las anoto yo, con mis palabras: título corto, capítulo del libro opcional, nota opcional e indicaciones opcionales (un paso por línea).
+- Decisión del 19 de octubre de 2026: la app trae las tareas de cada semana como resumen propio (parafraseado, nunca texto literal), con título e indicaciones. Se cargan una sola vez por semana y se pueden editar o borrar. No incluye Páginas Matutinas, Cita con el Artista ni el registro semanal, que ya tienen su lugar en la app. Si la semana ya pasó, aparecen en la actual como "viene de la semana anterior".
 - Puedo marcarlas como hechas, editarlas y borrarlas.
 - Agregar una actividad debe ser rápido: un campo y un botón, sin formularios largos.
 - Las no hechas no cuentan como fallo. Al cerrar la semana puedo pasarlas a la siguiente si quiero.

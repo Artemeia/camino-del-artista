@@ -44,6 +44,12 @@ Registro de decisiones y avance. Sin datos personales del proceso: esos viven so
 
 - Mensaje "Hoy en tu agenda" en la pantalla Hoy: muestra lo agendado desde la app para el día, con la hora, "Ahora" cuando está en curso y un mensaje sin culpa si ya pasó. Se actualiza cada minuto. No ve eventos creados directamente en Google.
 
+## 2026-10-19
+
+- Actividades con indicaciones: nuevo campo "Cómo hacerla" (desplegable, un paso por línea), editable.
+- Tareas de la semana 1 (3 a 10) cargadas como resumen propio: tres viejos críticos, escribir una historia, carta en mi defensa, tres defensores, carta de agradecimiento, cinco vidas imaginarias, críticas a afirmaciones, caminata. Se cargan una vez; si se borran no vuelven.
+- Como la app ya está en la semana 2, aparecen ahí marcadas "cap. 1 · viene de la semana anterior".
+
 **Pendiente**
 - Fase 2: Cita con el Artista, Banco de ideas, chat con el coach, Mi camino (sendero o constelación), pantalla de Mi caja de herramientas.
 - Decidir si el repositorio queda público o privado.

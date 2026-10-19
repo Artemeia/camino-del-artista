@@ -154,6 +154,11 @@ ul.acts input[type=checkbox], .panel input[type=checkbox]{width:22px; height:22p
 .act-main label{font-size:16px; line-height:1.35; color:var(--panel-ink); overflow-wrap:anywhere}
 li.done .act-main label{color:var(--muted); text-decoration:line-through}
 .act-meta{font-size:13px; color:var(--muted); font-style:italic}
+details.steps{margin-top:4px}
+details.steps summary{cursor:pointer; font-weight:700; font-size:14px; color:var(--eyebrow); min-height:36px; display:flex; align-items:center}
+details.steps ol{margin:2px 0 6px; padding-left:1.2em; font-size:15px; line-height:1.45; color:var(--panel-ink)}
+details.steps li{margin:4px 0; padding:0; border:0; display:list-item}
+.edit-box textarea{min-height:120px}
 .edit-btn{flex:none; width:40px; height:40px; margin-top:-8px; border:0; background:none; color:var(--muted); border-radius:10px; cursor:pointer; display:grid; place-items:center}
 .edit-box{display:flex; flex-direction:column; gap:8px; margin-top:8px}
 .edit-actions{display:flex; gap:8px; flex-wrap:wrap}
@@ -740,7 +745,7 @@ const STORIES = ["“No soy artista”","“Llego tarde”","“Tiene que quedar
 
 /* ================= Estado ================= */
 const KEY = "camino-del-artista:v1";
-const DEFAULT = {version:1, startDate:"2026-10-12", pausedAt:null, pauseDays:0, theme:"auto", pages:{}, activities:[], checkins:{}, toolbox:{}, scheduled:[]};
+const DEFAULT = {version:1, startDate:"2026-10-12", pausedAt:null, pauseDays:0, theme:"auto", pages:{}, activities:[], checkins:{}, toolbox:{}, scheduled:[], seeded:{}};
 const clone = o => JSON.parse(JSON.stringify(o));
 let S = load();
 function load(){
@@ -815,7 +820,8 @@ function sanitize(){
   S.pages = pages;
   S.activities = (Array.isArray(S.activities) ? S.activities : []).filter(a => a && typeof a.title === "string" && a.title.trim()).map(a => ({
     id:String(a.id || uid()), week:Math.min(12, Math.max(1, Math.round(Number(a.week)) || 1)), title:a.title, chapter:String(a.chapter || ""),
-    note:String(a.note || ""), done:!!a.done, created:isDate(a.created) ? a.created : today(), carried:!!a.carried}));
+    note:String(a.note || ""), steps:String(a.steps || ""), src:String(a.src || ""), done:!!a.done, created:isDate(a.created) ? a.created : today(), carried:!!a.carried}));
+  if(!S.seeded || typeof S.seeded !== "object" || Array.isArray(S.seeded)) S.seeded = {};
   if(!S.checkins || typeof S.checkins !== "object" || Array.isArray(S.checkins)) S.checkins = {};
   if(!S.toolbox || typeof S.toolbox !== "object" || Array.isArray(S.toolbox)) S.toolbox = {};
   const end = addDays(S.startDate, S.pauseDays + 83);
@@ -965,6 +971,8 @@ function renderSemana(wn, wk){
       el("div", {class:"act-main"},
         el("label", {for:id}, a.title),
         meta ? el("span", {class:"act-meta"}, meta) : null,
+        a.steps && editing !== a.id ? el("details", {class:"steps"}, el("summary", {}, "Cómo hacerla"),
+          el("ol", {}, ...a.steps.split("\n").map(t => t.trim()).filter(Boolean).map(t => el("li", {}, t)))) : null,
         editing === a.id ? editBox(a) : null),
       el("button", {type:"button", class:"edit-btn", "aria-label":"Editar " + a.title, "aria-expanded":String(editing === a.id), onclick:() => { editing = editing === a.id ? null : a.id; render(); }}, svgEdit())));
   }
@@ -973,16 +981,17 @@ function editBox(a){
   const title = el("input", {type:"text", value:a.title, maxlength:120, "aria-label":"Título"});
   const ch = el("input", {type:"text", value:a.chapter || "", maxlength:6, placeholder:"capítulo (opcional)", "aria-label":"Capítulo", inputmode:"numeric"});
   const note = el("input", {type:"text", value:a.note || "", maxlength:200, placeholder:"nota (opcional)", "aria-label":"Nota"});
-  return el("div", {class:"edit-box"}, title, ch, note,
+  const steps = el("textarea", {maxlength:1500, placeholder:"cómo hacerla: un paso por línea (opcional)", "aria-label":"Indicaciones"}); steps.value = a.steps || "";
+  return el("div", {class:"edit-box"}, title, ch, note, steps,
     el("div", {class:"edit-actions"},
-      el("button", {type:"button", class:"pill pri", onclick:() => { a.title = title.value.trim() || a.title; a.chapter = ch.value.trim(); a.note = note.value.trim(); editing = null; save(); render(); }}, "Guardar"),
+      el("button", {type:"button", class:"pill pri", onclick:() => { a.title = title.value.trim() || a.title; a.chapter = ch.value.trim(); a.note = note.value.trim(); a.steps = steps.value.trim(); editing = null; save(); render(); }}, "Guardar"),
       el("button", {type:"button", class:"pill sec", onclick:() => { if(confirm("¿Borrar esta actividad?")){ S.activities = S.activities.filter(x => x.id !== a.id); editing = null; save(); render(); } }}, "Borrar")));
 }
 function toggleAct(id){ const a = S.activities.find(x => x.id === id); if(a){ a.done = !a.done; save(); render(); } }
 $("#addActForm").addEventListener("submit", e => {
   e.preventDefault();
   const v = $("#newAct").value.trim(); if(!v) return;
-  S.activities.push({id:uid(), week:Math.max(1, currentWeek()), title:v, chapter:"", note:"", done:false, created:today()});
+  S.activities.push({id:uid(), week:Math.max(1, currentWeek()), title:v, chapter:"", note:"", steps:"", done:false, created:today()});
   $("#newAct").value = ""; save(); render(); $("#newAct").focus();
 });
 
@@ -1433,7 +1442,43 @@ $("#importJson").addEventListener("change", async e => {
 });
 
 /* ================= Inicio ================= */
-safe("tus datos", () => { sanitize(); save(); });
+/* ================= Tareas del libro (resumen propio, no texto literal) =================
+   Se cargan una sola vez por semana como actividades normales: se pueden editar, marcar o borrar.
+   Las Páginas Matutinas y la Cita con el Artista no van aquí: la app ya las acompaña. */
+const BOOK_TASKS = {
+  1: [
+    {src:"s1-t3", title:"Mis tres viejos críticos",
+     steps:"Anota tres personas o momentos que dañaron tu confianza creativa.\nSé concreta: quién fue, qué dijo o hizo y cuándo. Lo que parece pequeño también cuenta.\nNombrarlos sirve para que dejen de frenarte sin que lo notes.\nSi un recuerdo pesa demasiado, elige otro más liviano. No tienes que ir a lo más hondo."},
+    {src:"s1-t4", title:"Escribir una de esas historias",
+     steps:"Elige uno de tus tres críticos y escribe ese episodio en pocas líneas.\nAnota los detalles que vuelvan: el lugar, las caras, lo que sentías, cómo reaccionaron en casa.\nTermina con lo que todavía te molesta de eso.\nOpcional: dibuja o recorta una imagen del episodio y táchala o garabatéala encima."},
+    {src:"s1-t5", title:"Carta en mi defensa",
+     steps:"Escribe una carta respondiendo a esa crítica, con la voz de tu artista niña.\nPuede ser rabiosa, injusta y graciosa: no tiene que ser educada.\nCuando la termines, envíatela a ti misma (por correo o en un sobre)."},
+    {src:"s1-t6", title:"Mis tres defensores",
+     steps:"Anota tres personas que creyeron en ti y en tu creatividad.\nEscribe lo que te dijeron, con el mayor detalle posible.\nRegistra cada elogio aunque no te lo creas del todo.\nSi no aparecen, busca entre tus recuerdos buenos.\nOpcional: escoge una frase de ánimo, decórala y déjala a la vista donde escribes tus páginas."},
+    {src:"s1-t7", title:"Carta de agradecimiento",
+     steps:"Elige a uno de tus defensores y escríbele una carta dándole las gracias.\nPuedes enviársela o dirigírtela a ti misma."},
+    {src:"s1-t8", title:"Cinco vidas imaginarias",
+     steps:"Si pudieras vivir cinco vidas más, ¿qué serías en cada una? Anota lo primero que salga, sin filtrar.\nLa idea es pasarlo bien, no elegir una carrera.\nElige una de esas vidas y dale un gesto pequeño esta semana.\nEjemplo: si escribiste «ceramista», consigue un poco de greda y modela algo con las manos."},
+    {src:"s1-t9", title:"Convertir críticas en afirmaciones",
+     steps:"Al hacer estas listas pueden aparecer más recuerdos o reproches. Súmalos a tu lista de críticos.\nToma cada reproche por separado y escribe la frase opuesta, en positivo y en presente.\nEjemplo: «no tienes talento para dibujar» → «Mi mano aprende cada vez que dibujo».\nLéelas al terminar tus páginas de la mañana."},
+    {src:"s1-t10", title:"Caminata con mi artista",
+     steps:"Sal a caminar sola unos veinte minutos, a paso vivo.\nSin destino ni tarea: solo mirar lo que aparece.\nFíjate en cómo estás antes y después."}
+  ]
+};
+function seedBookTasks(){
+  const cw = currentWeek(); if(cw < 1) return;
+  for(const [k, list] of Object.entries(BOOK_TASKS)){
+    const w = Number(k); if(S.seeded[w] || cw < w) continue;
+    const target = Math.min(12, cw);   // si la semana ya pasó, aparecen en la actual, marcadas como pendientes de antes
+    for(const t of list){
+      if(S.activities.some(a => a.src === t.src)) continue;
+      S.activities.push({id:uid(), week:target, title:t.title, chapter:String(w), note:"", steps:t.steps, src:t.src, done:false, created:today(), carried:target > w});
+    }
+    S.seeded[w] = true;
+  }
+}
+
+safe("tus datos", () => { sanitize(); seedBookTasks(); save(); });
 safe("el tema", applyTheme); render();
 let lastDay = today();
 const refresh = () => { if(today() !== lastDay){ lastDay = today(); render(); } };
