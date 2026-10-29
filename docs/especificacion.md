@@ -57,7 +57,7 @@ Decisión del 18 de octubre de 2026: reemplaza la dirección anterior "ecléctic
 - Modo noche (dirección "Nocturno"): ultramar profundo (nunca negro puro), lavados de aurora y estrellas tenues. Mismo contenido y retícula que el modo día.
 - Cada semana del programa puede tener su propio matiz dentro de la paleta.
 - Tipografía: máximo tres fuentes. Una serif elegante para títulos y preguntas, una sans muy legible para la interfaz y, de forma opcional y mínima, una manuscrita para detalles.
-- Los botones "Me siento perdida" y "Estoy dándole vueltas" son siempre botones visibles, nunca enlaces discretos.
+- Decisión del 28 de octubre de 2026: se quitan los botones "Me siento perdida" y "Estoy dándole vueltas". La ayuda inmediata queda en Ajustes.
 - Mobile-first, porque la usaré sobre todo desde el teléfono. Que también se vea bien en escritorio.
 - Accesibilidad: contraste AA, textos de buen tamaño, también sobre las manchas de acuarela y en modo noche.
 - Motivación sin culpa: nada de rachas que "se rompen", alertas rojas ni contadores que se lean como nota. Si fallo un día, la app me recibe sin castigo.
@@ -70,7 +70,7 @@ Decisión del 18 de octubre de 2026: reemplaza la dirección anterior "ecléctic
   4. ~~Check-in semanal~~ (quitado el 28-oct-2026: lo hago a mano).
   5. Banco de ideas creativas.
   6. ~~Hablar con mi coach (chat)~~ (descartado el 28-oct-2026).
-  7. Mi camino: progreso visual de las 12 semanas (sendero o constelación de luces, por definir).
+  7. Mi recorrido: botón (no pestaña) que abre un mapa tipo videojuego con las semanas como mundos; mis palabras son estrellas. Simple, sin saturar.
   8. Mi caja de herramientas: las técnicas que me han servido cuando me siento perdida.
 
 ## Actividades de la semana
@@ -91,7 +91,7 @@ Decisión del 18 de octubre de 2026: la app vive fuera de Claude, abierta en la 
 - Mis registros son privados: nunca se envían al servidor ni se suben al repositorio.
 - Chat con el coach: descartado el 28 de octubre de 2026.
 - Fecha de inicio: lunes 12 de octubre de 2026.
-- Decisión del 28 de octubre de 2026: la semana NO avanza por fecha. Paso a la siguiente cuando yo lo decido, desde la pantalla Semana. La app guarda el día en que empezó cada semana. Si llevo dos semanas o más en una, lo menciona una vez, con cariño, sin contador. En Ajustes puedo corregir la semana o reiniciar.
+- Decisión del 28 de octubre de 2026: la semana NO avanza por fecha. Paso a la siguiente cuando yo lo decido, desde la pantalla Semana. La app guarda el día en que empezó cada semana. El paso es el mismo día; las semanas se muestran de lunes a domingo. Mi máximo es dos semanas: aviso el día 10 y el 14, que puedo cerrar; nunca avanza sola. Puedo deshacer el mismo día o corregir la semana en Ajustes.
 
 ## Forma de trabajar conmigo
 - Construir por fases: primero un MVP (Hoy con los botones de ayuda + Mi semana con mis actividades + Check-in), luego iterar.

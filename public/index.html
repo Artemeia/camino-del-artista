@@ -100,7 +100,42 @@ section.view.active{display:block}
 .panel .label{color:var(--green-label)}
 .row-between{display:flex; align-items:baseline; justify-content:space-between; gap:12px}
 .quiet-note{margin-top:22px}
-.words-line{margin-top:6px; font-family:var(--serif); font-style:italic; font-size:16px}
+.map-btn{position:absolute; top:calc(26px + env(safe-area-inset-top)); right:60px; width:44px; height:44px; border:0; background:none; color:var(--muted); border-radius:50%; display:grid; place-items:center; cursor:pointer; z-index:2}
+.star-row{display:flex; gap:10px; margin-top:14px}
+.star-row input{flex:1}
+.star-btn{flex:none; width:48px; height:46px; border-radius:14px; border:1.5px solid var(--sec-border); background:transparent; color:var(--accent); display:grid; place-items:center; cursor:pointer}
+.star-btn:active{transform:scale(.94)}
+.flying-star{position:fixed; z-index:30; color:var(--accent); pointer-events:none; animation:fly 1.1s cubic-bezier(.4,.1,.2,1) forwards}
+@keyframes fly{0%{transform:translate(0,0) scale(1); opacity:1} 70%{opacity:1} 100%{transform:translate(var(--dx),var(--dy)) scale(.4); opacity:0}}
+.week-note{margin-top:20px; padding:14px 16px; border-radius:18px; background:var(--loop-bg); color:var(--loop-ink); border:1px solid var(--loop-border)}
+.week-note p{margin:0; font-size:15px; line-height:1.45}
+.week-note button{margin-top:8px}
+.cita-saved{margin-top:8px; font-size:15px; color:var(--ink)}
+.cita-saved b{display:block; font-family:var(--serif); font-size:18px; font-weight:600; color:var(--head)}
+section.view.in-l{animation:inL .28s ease}
+section.view.in-r{animation:inR .28s ease}
+@keyframes inL{from{opacity:.3; transform:translateX(-28px)} to{opacity:1; transform:none}}
+@keyframes inR{from{opacity:.3; transform:translateX(28px)} to{opacity:1; transform:none}}
+/* Mapa del recorrido */
+.map{position:relative; margin-top:10px}
+.map svg.path{position:absolute; inset:0; width:100%; height:100%; overflow:visible}
+.world{position:absolute; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; gap:6px; border:0; background:none; padding:0; cursor:pointer; color:var(--head)}
+.world:disabled{cursor:default}
+.world .orb{display:grid; place-items:center; border-radius:50%; font-family:var(--serif); font-weight:600; transition:transform .2s}
+.world:not(:disabled):active .orb{transform:scale(.94)}
+.world.done .orb{width:58px; height:58px; font-size:24px; background:var(--dot-on); color:#13261C; box-shadow:0 0 18px var(--dot-glow)}
+.world.now .orb{width:72px; height:72px; font-size:30px; background:var(--pri-bg); color:var(--pri-ink); box-shadow:0 0 0 6px var(--card), 0 0 26px var(--dot-glow)}
+.world.later .orb{width:44px; height:44px; font-size:19px; background:transparent; border:1.5px dashed var(--dot-off); color:var(--muted)}
+.world .wname{font-family:var(--serif); font-size:17px; line-height:1.1; white-space:nowrap; background:var(--bg); padding:1px 8px; border-radius:8px}
+.world.later .wname{color:var(--muted); font-size:15px}
+.world .here{font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--accent)}
+.map .st{position:absolute; color:var(--accent); opacity:.85; transform:translate(-50%,-50%); pointer-events:none}
+.world-card{position:sticky; bottom:0; margin-top:16px; padding:18px; border-radius:20px; background:var(--bg); border:1px solid var(--line); box-shadow:0 -8px 30px rgba(31,42,74,.10)}
+.world-card h3{margin:0; font-family:var(--serif); font-size:26px; font-weight:600; color:var(--head)}
+.world-card .small{margin-top:2px}
+.world-card h4{margin:14px 0 4px; font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--green-label)}
+.world-card ul{margin:0; padding-left:18px; font-size:15px}
+.world-card .words{font-family:var(--serif); font-style:italic; font-size:18px; color:var(--head)}
 #closeBox .pend{display:flex; align-items:center; gap:12px; min-height:44px; color:var(--ink)}
 select{width:100%; min-height:46px; padding:11px 14px; border-radius:14px; border:1.5px solid var(--input-border); background:var(--input-bg); color:var(--ink); font:inherit; font-size:16px}
 
@@ -332,6 +367,8 @@ body.quiet .sky .aur.extra{display:none}
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
 </button>
 
+<button class="map-btn" id="openMap" aria-label="Mi recorrido"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h6.5a3.5 3.5 0 0 0 0-7h-5a3.5 3.5 0 0 1 0-7H16"/></svg></button>
+
 <main>
   <!-- ================= HOY ================= -->
   <section class="view active" id="view-hoy" aria-labelledby="hoyTitle">
@@ -349,19 +386,13 @@ body.quiet .sky .aur.extra{display:none}
 
     <section class="card" aria-labelledby="pagTitle" style="margin-top:34px">
       <h2 class="card-title" id="pagTitle">Páginas Matutinas</h2>
-      <p style="margin:2px 0 12px; font-size:15px; color:var(--soft)">¿Las escribiste hoy, a mano?</p>
-      <div class="pair">
-        <button type="button" class="pill pri" id="pagesYes" aria-pressed="false">Sí</button>
-        <button type="button" class="pill sec" id="pagesNo" aria-pressed="false">Hoy no</button>
-      </div>
+      <p style="margin:2px 0 0; font-size:15px; color:var(--soft)">¿Las escribiste hoy, a mano?</p>
       <div class="dots" id="hoyDots"></div>
-      <p class="small" style="margin-top:2px">Toca un día para marcar las páginas que hiciste antes.</p>
-      <p class="small words-line" id="hoyWords" hidden></p>
-      <p class="small pages-msg" id="pagesMsg" hidden></p>
-      <div class="word" id="wordBox">
-        <label class="f" for="pagesWord" style="color:var(--soft)">Una palabra para cómo te sentiste <span style="font-weight:400">(opcional)</span></label>
-        <input type="text" id="pagesWord" maxlength="24" autocomplete="off" placeholder="liviana, espesa, curiosa…">
-      </div>
+      <form class="star-row" id="wordForm" autocomplete="off">
+        <label class="sr" for="pagesWord">Una palabra para cómo te sentiste</label>
+        <input type="text" id="pagesWord" maxlength="24" placeholder="una palabra para cómo te sentiste">
+        <button class="star-btn" type="submit" aria-label="Llevar la palabra a mi recorrido"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.6 6.3 6.9.6-5.2 4.5 1.6 6.7L12 17l-5.9 3.6 1.6-6.7-5.2-4.5 6.9-.6z"/></svg></button>
+      </form>
     </section>
 
     <p class="serif-i quiet-note" id="midNotice" hidden>Entre la semana cinco y la ocho es donde más se suelta el proceso. Si aparece la resistencia, no vas mal: algo se está moviendo. Basta con lo mínimo, tus páginas y una cita corta.</p>
@@ -374,13 +405,8 @@ body.quiet .sky .aur.extra{display:none}
       <div id="pendingBody"></div>
     </section>
 
-    <div class="help pair">
-      <button type="button" class="lost" data-flow="perdida">Me siento perdida</button>
-      <button type="button" class="loop" data-flow="vueltas">Estoy dándole vueltas</button>
-    </div>
-
-    <button type="button" class="row-link" data-agenda>
-      <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>Agendar en mi calendario</span>
+    <button type="button" class="row-link" data-map>
+      <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h6.5a3.5 3.5 0 0 0 0-7h-5a3.5 3.5 0 0 1 0-7H16"/></svg>Mi recorrido</span>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </button>
   </section>
@@ -389,6 +415,7 @@ body.quiet .sky .aur.extra{display:none}
   <section class="view" id="view-semana" aria-labelledby="semTitle">
     <div class="eyebrow" id="semEyebrow"></div>
     <h1 id="semTitle"></h1>
+    <div class="week-note" id="weekNote" role="status" hidden></div>
 
     <section style="margin-top:20px" aria-labelledby="ideaLabel">
       <h2 class="label" id="ideaLabel">De qué va</h2>
@@ -425,17 +452,17 @@ body.quiet .sky .aur.extra{display:none}
 
     <p class="serif-i" style="margin:16px 4px 0">Lo que no alcances no cuenta como falta. Tú decides cuándo pasar a la semana siguiente.</p>
 
+    <section class="card" aria-labelledby="citaTitle">
+      <h2 class="card-title" id="citaTitle">Cita con el Artista</h2>
+      <div id="citaBody"></div>
+    </section>
+
     <section class="card" id="closeBox" aria-label="Pasar de semana"></section>
 
-    <button type="button" class="row-link" data-agenda-kind="minutos" style="margin-top:18px">
-      <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>Agendar minutos para mis actividades</span>
+    <button type="button" class="row-link" data-agenda style="margin-top:18px">
+      <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>Agendar en mi calendario</span>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </button>
-
-    <div class="help pair">
-      <button type="button" class="lost" data-flow="perdida">Me siento perdida</button>
-      <button type="button" class="loop" data-flow="vueltas">Estoy dándole vueltas</button>
-    </div>
   </section>
 
 </main>
@@ -446,6 +473,18 @@ body.quiet .sky .aur.extra{display:none}
     <button type="button" data-view="semana">Semana</button>
   </div>
 </nav>
+
+<!-- ================= MI RECORRIDO ================= -->
+<div class="sheet" id="mapSheet" role="dialog" aria-modal="true" aria-labelledby="mapHeading">
+  <div class="wrap">
+    <div class="bar">
+      <div class="eyebrow" id="mapHeading">Mi recorrido</div>
+      <button class="close" id="closeMap" aria-label="Cerrar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <div class="map" id="map"></div>
+    <div class="world-card" id="worldCard" hidden></div>
+  </div>
+</div>
 
 <!-- ================= FLUJOS GUIADOS ================= -->
 <div class="sheet" id="flowSheet" role="dialog" aria-modal="true" aria-label="Flujo guiado">
@@ -609,6 +648,7 @@ body.quiet .sky .aur.extra{display:none}
       <select id="weekSel"></select>
       <p class="small" style="margin:10px 0 12px">Para corregir si avanzaste por error. Lo normal es pasar de semana desde la pantalla Semana, cuando tú te sientas lista.</p>
       <button class="pill sec" type="button" id="restartBtn" style="width:100%">Reiniciar desde la semana uno</button>
+      <button class="pill sec" type="button" id="openSafety2" style="width:100%; margin-top:10px">Ayuda inmediata</button>
     </section>
     <section class="card">
       <h2 class="card-title">Mis datos</h2>
@@ -700,7 +740,7 @@ const STORIES = ["“No soy artista”","“Llego tarde”","“Tiene que quedar
 
 /* ================= Estado ================= */
 const KEY = "camino-del-artista:v1";
-const DEFAULT = {version:1, startDate:"2026-10-12", week:null, weekStarts:{}, finishedAt:null, pausedAt:null, pauseDays:0, theme:"auto", pages:{}, activities:[], checkins:{}, toolbox:{}, scheduled:[], seeded:{}};
+const DEFAULT = {version:1, startDate:"2026-10-12", week:null, weekStarts:{}, finishedAt:null, words:{}, artist:{}, dismissed:{}, pausedAt:null, pauseDays:0, theme:"auto", pages:{}, activities:[], checkins:{}, toolbox:{}, scheduled:[], seeded:{}};
 const clone = o => JSON.parse(JSON.stringify(o));
 let S = load();
 function load(){
@@ -725,6 +765,15 @@ const weekStart = w => S.weekStarts[w] || today();
 const weekLast = w => (w < S.week && S.weekStarts[w+1]) ? addDays(S.weekStarts[w+1], -1) : today();
 function datesOf(w){ const out = []; for(let d = weekStart(w); d <= weekLast(w) && out.length < 400; d = addDays(d, 1)) out.push(d); return out; }
 function caminoEnd(){ const w = Number.isInteger(S.week) ? S.week : 1; const e = addDays((S.weekStarts && S.weekStarts[w]) || S.startDate, (13 - w)*7 - 1); return e < today() ? today() : e; }
+const monday = d => addDays(d, -((parse(d).getDay() + 6) % 7));
+const short = d => fmt(d, {day:"numeric", month:"short"}).replace(".", "");
+// Rango que se muestra: del lunes de la semana en que empezó al domingo de esta semana; si ya pasó, hasta su último día real.
+function weekRange(w){
+  const a = monday(weekStart(w)), b = w < S.week ? weekLast(w) : addDays(monday(today()), 6);
+  const sameM = parse(a).getMonth() === parse(b).getMonth();
+  return sameM ? `${parse(a).getDate()} al ${fmt(b, {day:"numeric", month:"long"})}` : `${short(a)} al ${short(b)}`;
+}
+const weekDay = w => diffDays(monday(weekStart(w)), today()) + 1;   // día dentro de la semana, contando desde su lunes
 const lastDays = n => Array.from({length:n}, (_,i) => addDays(today(), i - n + 1));
 // Semana que habría calculado la versión anterior (solo por fecha). Se usa una vez, al migrar.
 const dateWeek = () => { const d = diffDays(S.startDate, S.pausedAt || today()) - (S.pauseDays || 0); return d < 0 ? 1 : Math.min(12, Math.floor(d/7) + 1); };
@@ -787,12 +836,23 @@ function sanitize(){
   if(!isDate(S.finishedAt) || S.week < 12) S.finishedAt = null;
   const pages = {};
   for(const [d, v] of Object.entries(S.pages && typeof S.pages === "object" ? S.pages : {})){
-    if(isDate(d) && v && typeof v === "object") pages[d] = v.done ? {done:true, word:typeof v.word === "string" ? v.word : ""} : {done:false};
+    if(isDate(d) && v && typeof v === "object" && v.done) pages[d] = {done:true};
   }
+  // Las palabras viven aparte: son las estrellas del recorrido. Se rescatan las que estaban dentro de las páginas.
+  const words = {};
+  for(const [d, v] of Object.entries(S.words && typeof S.words === "object" ? S.words : {})) if(isDate(d) && typeof v === "string" && v.trim()) words[d] = v.trim().slice(0, 24);
+  for(const [d, v] of Object.entries(S.pages && typeof S.pages === "object" ? S.pages : {})) if(isDate(d) && v && typeof v.word === "string" && v.word.trim() && !words[d]) words[d] = v.word.trim().slice(0, 24);
+  S.words = words;
   S.pages = pages;
+  const artist = {};
+  for(const [w, v] of Object.entries(S.artist && typeof S.artist === "object" ? S.artist : {})){
+    if(v && typeof v === "object" && Number(w) >= 1 && Number(w) <= 12) artist[w] = {date:isDate(v.date) ? v.date : "", note:typeof v.note === "string" ? v.note : ""};
+  }
+  S.artist = artist;
+  if(!S.dismissed || typeof S.dismissed !== "object" || Array.isArray(S.dismissed)) S.dismissed = {};
   S.activities = (Array.isArray(S.activities) ? S.activities : []).filter(a => a && typeof a.title === "string" && a.title.trim()).map(a => ({
     id:String(a.id || uid()), week:Math.min(12, Math.max(1, Math.round(Number(a.week)) || 1)), title:a.title, chapter:String(a.chapter || ""),
-    note:String(a.note || ""), steps:String(a.steps || ""), src:String(a.src || ""), done:!!a.done, created:isDate(a.created) ? a.created : today(), carried:!!a.carried, left:!!a.left}));
+    note:String(a.note || ""), steps:String(a.steps || ""), src:String(a.src || ""), done:!!a.done, created:isDate(a.created) ? a.created : today(), carried:!!a.carried, left:!!a.left, doneAt:a.done && isDate(a.doneAt) ? a.doneAt : ""}));
   for(const a of S.activities) if(a.week > S.week) a.week = S.week;
   if(!S.seeded || typeof S.seeded !== "object" || Array.isArray(S.seeded)) S.seeded = {};
   if(!S.checkins || typeof S.checkins !== "object" || Array.isArray(S.checkins)) S.checkins = {};
@@ -855,7 +915,7 @@ function toggleDay(d){
   if(d > today()) return;
   const cur = S.pages[d];
   if(cur && cur.done) delete S.pages[d];
-  else { S.pages[d] = {done:true, word:(cur && cur.word) || ""}; toast(d === today() ? "Una luz más en tu camino." : "Marcado el " + fmt(d, {weekday:"long"}) + "."); }
+  else { S.pages[d] = {done:true}; toast(d === today() ? "Una luz más en tu camino." : "Marcado el " + fmt(d, {weekday:"long"}) + "."); }
   save(); render();
 }
 
@@ -866,28 +926,14 @@ function renderHoy(w, wn, wk){
     $("#hoyTitle").textContent = "Doce semanas";
     $("#hoySub").textContent = "cerraste tu camino el " + fmt(S.finishedAt, {day:"numeric", month:"long"});
   } else {
-    const ws = weekStart(wn);
     $("#hoyTitle").textContent = wk.t;
-    $("#hoySub").textContent = `semana ${NUM[wn-1]} · ` + (ws === t ? "empieza hoy" : "desde el " + fmt(ws, {day:"numeric", month:"long"}));
+    $("#hoySub").textContent = `semana ${NUM[wn-1]} · ${weekRange(wn)}`;
   }
 
   const p = S.pages[t];
-  const yes = !!(p && p.done), no = !!(p && p.done === false);
-  $("#pagesYes").setAttribute("aria-pressed", String(yes));
-  $("#pagesYes").textContent = yes ? "Sí, hechas" : "Sí";
-  $("#pagesNo").setAttribute("aria-pressed", String(no));
-  $("#sky").classList.toggle("glow", yes);
-  $("#wordBox").classList.toggle("show", yes);
-  if(document.activeElement !== $("#pagesWord")) $("#pagesWord").value = (p && p.word) || "";
-  $("#pagesWord").onchange = () => render();
-  const msg = $("#pagesMsg");
-  msg.hidden = !(yes || no);
-  msg.textContent = yes ? "Lo que escribiste es solo tuyo y se queda en el papel." : "Está bien. Mañana hay otra página en blanco.";
-  const week7 = lastDays(7);
-  dots($("#hoyDots"), week7);
-  const words = week7.map(d => S.pages[d] && S.pages[d].word).filter(Boolean);
-  $("#hoyWords").hidden = !words.length;
-  $("#hoyWords").textContent = words.length ? "Tus palabras: " + words.join(" · ") : "";
+  $("#sky").classList.toggle("glow", !!(p && p.done));
+  dots($("#hoyDots"), lastDays(7));
+  if(document.activeElement !== $("#pagesWord") && !$("#pagesWord").value) $("#pagesWord").placeholder = S.words[t] ? "hoy: " + S.words[t] : "una palabra para cómo te sentiste";
   $("#midNotice").hidden = !(w >= 5 && w <= 8);
 
   const body = $("#pendingBody"); body.replaceChildren();
@@ -903,27 +949,31 @@ function renderHoy(w, wn, wk){
   }
 }
 
-$("#pagesYes").addEventListener("click", () => {
-  const t = today(), cur = S.pages[t];
-  if(cur && cur.done) delete S.pages[t];
-  else { S.pages[t] = {done:true, word:(cur && cur.word) || ""}; toast("Una luz más en tu camino."); }
-  save(); render();
+$("#wordForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = $("#pagesWord").value.trim().split(/\s+/)[0] || ""; if(!v) return;
+  S.words[today()] = v.slice(0, 24); save();
+  $("#pagesWord").value = ""; $("#pagesWord").blur();
+  flyStar($("#wordForm .star-btn"));
+  render(); toast("Una estrella más en tu recorrido.");
 });
-$("#pagesNo").addEventListener("click", () => {
-  const t = today(), cur = S.pages[t];
-  if(cur && cur.done === false) delete S.pages[t]; else S.pages[t] = {done:false};
-  save(); render();
-});
-$("#pagesWord").addEventListener("input", e => {
-  const t = today(); if(!S.pages[t] || !S.pages[t].done) return;
-  S.pages[t].word = e.target.value.trim().split(/\s+/)[0] || ""; save();
-});
+// La estrella vuela hacia el botón del recorrido.
+function flyStar(from){
+  try{
+    const a = from.getBoundingClientRect(), b = $("#openMap").getBoundingClientRect();
+    const st = el("div", {class:"flying-star"}); st.innerHTML = from.innerHTML;
+    st.style.left = a.left + a.width/2 - 10 + "px"; st.style.top = a.top + a.height/2 - 10 + "px";
+    st.style.setProperty("--dx", (b.left + b.width/2) - (a.left + a.width/2) + "px");
+    st.style.setProperty("--dy", (b.top + b.height/2) - (a.top + a.height/2) + "px");
+    document.body.append(st); setTimeout(() => st.remove(), 1200);
+  }catch(e){}
+}
 
 /* ---------- Semana ---------- */
 let editing = null;
 function renderSemana(wn, wk){
-  const ws = weekStart(wn);
-  $("#semEyebrow").textContent = `Semana ${wn} · ` + (ws === today() ? "empieza hoy" : "desde el " + fmt(ws, {day:"numeric", month:"long"}));
+  $("#semEyebrow").textContent = `Semana ${wn} · ${weekRange(wn)}`;
+  renderWeekNote(wn);
   $("#semTitle").textContent = wk.t;
   $("#semSummary").textContent = wk.s;
   $("#semChapter").textContent = `En tu libro: capítulo de la semana ${wn}`;
@@ -935,7 +985,7 @@ function renderSemana(wn, wk){
   if(!acts.length) list.append(el("li", {style:"border:0; font-family:var(--serif); font-style:italic; font-size:17px; color:var(--muted)"}, "Nada anotado todavía. Una sola basta."));
   for(const a of acts){
     const id = "act-" + a.id;
-    const meta = [a.chapter ? "cap. " + a.chapter : null, a.note, a.carried ? "viene de la semana anterior" : null].filter(Boolean).join(" · ");
+    const meta = [a.done && a.doneAt ? "hecha el " + short(a.doneAt) : null, a.chapter ? "cap. " + a.chapter : null, a.note, a.carried && !a.done ? "viene de la semana anterior" : null].filter(Boolean).join(" · ");
     list.append(el("li", {class:a.done ? "done" : ""},
       el("input", {type:"checkbox", id, checked:a.done, onchange:() => toggleAct(a.id)}),
       el("div", {class:"act-main"},
@@ -947,7 +997,44 @@ function renderSemana(wn, wk){
       el("button", {type:"button", class:"edit-btn", "aria-label":"Editar " + a.title, "aria-expanded":String(editing === a.id), onclick:() => { editing = editing === a.id ? null : a.id; render(); }}, svgEdit())));
   }
   renderPrev(wn);
+  renderCita(wn);
   renderClose(wn);
+}
+
+/* Aviso suave el día 10 y el 14 (su máximo son dos semanas). Se puede cerrar. */
+function renderWeekNote(wn){
+  const box = $("#weekNote"), d = weekDay(wn);
+  const k = d >= 14 ? wn + ":14" : d >= 10 ? wn + ":10" : null;
+  box.hidden = !k || S.dismissed[k] || !!S.finishedAt;
+  if(box.hidden) return;
+  const msg = d >= 14
+    ? "Se cumplen dos semanas, el máximo que te pusiste. Si te sientes lista, pasa a la siguiente. Si no, está bien: solo decide tú cuándo."
+    : "Llevas diez días en esta semana. Te quedan unos días antes de tu máximo de dos. ¿Es tu ritmo o hay algo que estás evitando?";
+  box.replaceChildren(el("p", {}, msg), el("button", {type:"button", class:"text-link", onclick:() => { S.dismissed[k] = true; save(); render(); }}, "Entendido"));
+}
+
+/* Cita con el Artista de la semana: cuándo fue y qué hice. */
+let citaEdit = false;
+function renderCita(wn){
+  const box = $("#citaBody"); box.replaceChildren();
+  const c = S.artist[wn];
+  const agenda = el("button", {type:"button", class:"text-link", style:"margin-top:10px; color:var(--eyebrow)", onclick:() => openEv({kind:"cita"})}, "Agendar la próxima cita");
+  if(c && !citaEdit){
+    box.append(el("div", {class:"cita-saved"}, el("b", {}, c.date ? fmt(c.date, {weekday:"long", day:"numeric", month:"long"}) : "Esta semana"), c.note || null),
+      el("div", {style:"display:flex; gap:18px"}, el("button", {type:"button", class:"text-link", style:"margin-top:10px", onclick:() => { citaEdit = true; render(); }}, "Editar"), agenda));
+    return;
+  }
+  const date = el("input", {type:"date", id:"citaDate", value:(c && c.date) || today(), max:today()});
+  const note = el("textarea", {id:"citaNote", maxlength:600, placeholder:"dónde fuiste, qué hiciste, qué notaste…", style:"min-height:72px"}); note.value = (c && c.note) || "";
+  box.append(el("p", {class:"small", style:"margin:2px 0 6px"}, "Sola, unas dos horas, para jugar."),
+    el("label", {class:"f", for:"citaDate"}, "¿Cuándo fue?"), date,
+    el("label", {class:"f", for:"citaNote"}, "¿Cómo fue?"), note,
+    el("div", {class:"pair", style:"margin-top:12px"},
+      el("button", {type:"button", class:"pill pri", onclick:() => {
+        if(!date.value && !note.value.trim()) return;
+        S.artist[wn] = {date:date.value, note:note.value.trim()}; citaEdit = false; save(); render(); toast("Tu cita quedó en el recorrido.");
+      }}, "Guardar"),
+      c ? el("button", {type:"button", class:"pill sec", onclick:() => { citaEdit = false; render(); }}, "Cancelar") : agenda));
 }
 
 /* Pendientes de semanas anteriores que nadie decidió dejar atrás: no se pierden. */
@@ -974,11 +1061,13 @@ function renderClose(wn){
   const box = $("#closeBox"); box.replaceChildren();
   const last = wn === 12;
   if(S.finishedAt){ box.append(el("p", {class:"serif-i"}, "Cerraste tu camino el " + fmt(S.finishedAt, {day:"numeric", month:"long"}) + ".")); return; }
-  const days = diffDays(weekStart(wn), today()) + 1;
+  const days = weekDay(wn);
   if(!closing){
+    if(wn > 1 && weekStart(wn) === today()) box.append(el("button", {type:"button", class:"text-link", style:"margin-bottom:12px; color:var(--eyebrow)", onclick:() => {
+      if(confirm(`¿Volver a la semana ${wn-1}? Lo que trajiste vuelve contigo.`)){ setWeek(wn-1); toast("Volviste a la semana " + (wn-1) + "."); }
+    }}, "¿Te equivocaste? Volver a la semana " + (wn-1)));
     box.append(el("h2", {class:"card-title"}, last ? "Cerrar el camino" : "La semana " + (wn+1)),
       el("p", {class:"small", style:"margin:4px 0 12px"}, last ? "Cuando sientas que terminaste, cierras aquí." : "Pasas cuando terminaste el capítulo y te sientes lista. No hay fecha que cumplir."),
-      ...(days >= 14 ? [el("p", {class:"serif-i", style:"margin-bottom:12px"}, "Llevas un buen tiempo en esta semana. Si es tu ritmo, está perfecto. Si notas que estás evitando algo, una actividad pequeña basta para moverte.")] : []),
       el("button", {type:"button", class:"pill sec", style:"width:100%", onclick:() => { closing = true; render(); }}, last ? "Cerrar mi camino" : "Estoy lista para la semana " + (wn+1)));
     return;
   }
@@ -1015,7 +1104,7 @@ function setWeek(n){
   if(n > S.week){ for(let w = S.week + 1; w <= n; w++) S.weekStarts[w] = S.weekStarts[w] || today(); }
   else {
     for(let w = n + 1; w <= 12; w++) delete S.weekStarts[w];
-    for(const a of S.activities) if(a.week > n) a.week = n;
+    for(const a of S.activities){ if(a.week > n) a.week = n; if(a.week === n) a.left = false; }
   }
   S.week = n; S.finishedAt = null; closing = false; seedBookTasks(); save(); render();
 }
@@ -1024,12 +1113,14 @@ function editBox(a){
   const ch = el("input", {type:"text", value:a.chapter || "", maxlength:6, placeholder:"capítulo (opcional)", "aria-label":"Capítulo", inputmode:"numeric"});
   const note = el("input", {type:"text", value:a.note || "", maxlength:200, placeholder:"nota (opcional)", "aria-label":"Nota"});
   const steps = el("textarea", {maxlength:1500, placeholder:"cómo hacerla: un paso por línea (opcional)", "aria-label":"Indicaciones"}); steps.value = a.steps || "";
+  const did = el("input", {type:"date", id:"did-" + a.id, value:a.doneAt || "", max:today()});
   return el("div", {class:"edit-box"}, title, ch, note, steps,
+    el("label", {class:"f", for:"did-" + a.id, style:"margin-top:4px"}, "Fecha en que la hice"), did,
     el("div", {class:"edit-actions"},
-      el("button", {type:"button", class:"pill pri", onclick:() => { a.title = title.value.trim() || a.title; a.chapter = ch.value.trim(); a.note = note.value.trim(); a.steps = steps.value.trim(); editing = null; save(); render(); }}, "Guardar"),
+      el("button", {type:"button", class:"pill pri", onclick:() => { a.title = title.value.trim() || a.title; a.chapter = ch.value.trim(); a.note = note.value.trim(); a.steps = steps.value.trim(); if(did.value){ a.done = true; a.doneAt = did.value; } else if(a.done) a.doneAt = ""; editing = null; save(); render(); }}, "Guardar"),
       el("button", {type:"button", class:"pill sec", onclick:() => { if(confirm("¿Borrar esta actividad?")){ S.activities = S.activities.filter(x => x.id !== a.id); editing = null; save(); render(); } }}, "Borrar")));
 }
-function toggleAct(id){ const a = S.activities.find(x => x.id === id); if(a){ a.done = !a.done; save(); render(); } }
+function toggleAct(id){ const a = S.activities.find(x => x.id === id); if(a){ a.done = !a.done; a.doneAt = a.done ? today() : ""; save(); render(); } }
 $("#addActForm").addEventListener("submit", e => {
   e.preventDefault();
   const v = $("#newAct").value.trim(); if(!v) return;
@@ -1044,6 +1135,24 @@ function go(v){
   window.scrollTo({top:0});
 }
 $$("nav.tabs button").forEach(b => b.addEventListener("click", () => go(b.dataset.view)));
+/* Deslizar a los lados para cambiar de pestaña */
+const VIEWS = ["hoy", "semana"];
+const currentView = () => ($("section.view.active") || {id:"view-hoy"}).id.slice(5);
+let tx = null, ty = 0;
+document.addEventListener("touchstart", e => {
+  const t = e.target;
+  if(document.querySelector(".sheet.open") || e.touches.length > 1 || (t.closest && t.closest("input, textarea, select, .dots"))){ tx = null; return; }
+  tx = e.touches[0].clientX; ty = e.touches[0].clientY;
+}, {passive:true});
+document.addEventListener("touchend", e => {
+  if(tx === null) return;
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty; tx = null;
+  if(Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+  const i = VIEWS.indexOf(currentView()), j = i + (dx < 0 ? 1 : -1);
+  if(j < 0 || j >= VIEWS.length) return;
+  go(VIEWS[j]);
+  const s = $("#view-" + VIEWS[j]); s.classList.remove("in-l", "in-r"); void s.offsetWidth; s.classList.add(dx < 0 ? "in-r" : "in-l");
+}, {passive:true});
 $$("[data-go]").forEach(b => b.addEventListener("click", () => go(b.dataset.go)));
 
 /* ================= Flujos guiados ================= */
@@ -1152,6 +1261,7 @@ function next(){ clearInterval(timerT); if(stepI < flow.length - 1){ stepI++; dr
 $$("[data-flow]").forEach(b => b.addEventListener("click", () => { flow = buildFlow(b.dataset.flow); stepI = 0; openSheet("#flowSheet"); drawStep(); }));
 $("#closeFlow").addEventListener("click", () => closeSheet("#flowSheet"));
 $("#openSafety").addEventListener("click", () => openSheet("#safetySheet"));
+$("#openSafety2").addEventListener("click", () => openSheet("#safetySheet"));
 $("#closeSafety").addEventListener("click", () => closeSheet("#safetySheet"));
 document.addEventListener("keydown", e => { if(e.key === "Escape"){ const o = $$(".sheet.open").pop(); if(o) closeSheet("#" + o.id); } });
 
@@ -1386,6 +1496,63 @@ function renderTodayNote(){
   }
 }
 
+/* ================= Mi recorrido: las semanas como mundos ================= */
+const STAR_PATH = "M12 2.5l2.6 6.3 6.9.6-5.2 4.5 1.6 6.7L12 17l-5.9 3.6 1.6-6.7-5.2-4.5 6.9-.6z";
+function weekWords(w){ return w > S.week ? [] : datesOf(w).filter(d => S.words[d]).map(d => ({d, w:S.words[d]})); }
+function openMap(){ openSheet("#mapSheet"); $("#worldCard").hidden = true; drawMap(); setTimeout(() => { const n = $("#map .world.now"); if(n) n.scrollIntoView({block:"center"}); }, 60); }
+function drawMap(){
+  const map = $("#map"); map.replaceChildren();
+  const W = map.clientWidth || 340, H = 150, XS = [0.5, 0.24, 0.5, 0.76];
+  map.style.height = (12 * H + 20) + "px";
+  // De abajo hacia arriba, como un mapa de juego: la semana 1 es el primer mundo.
+  const pts = WEEKS.map((_, i) => ({x:W * XS[i % 4], y:(11 - i) * H + H/2 + 10}));
+  const curve = list => list.map((p, i) => i ? `C ${list[i-1].x} ${list[i-1].y - H/2}, ${p.x} ${p.y + H/2}, ${p.x} ${p.y}` : `M ${p.x} ${p.y}`).join(" ");
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg"); svg.setAttribute("class", "path"); svg.setAttribute("aria-hidden", "true");
+  const path = (d, stroke, dash, w) => { const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); p.setAttribute("fill", "none"); p.setAttribute("stroke", stroke); p.setAttribute("stroke-width", w); p.setAttribute("stroke-linecap", "round"); if(dash) p.setAttribute("stroke-dasharray", dash); svg.append(p); };
+  path(curve(pts), "var(--dot-off)", "2 9", 2.5);
+  const reached = S.finishedAt ? 12 : S.week;
+  if(reached > 1) path(curve(pts.slice(0, reached)), "var(--dot-on)", null, 4);
+  map.append(svg);
+  WEEKS.forEach((wk, i) => {
+    const w = i + 1, p = pts[i];
+    const state = w < S.week || (w === 12 && S.finishedAt) ? "done" : w === S.week ? "now" : "later";
+    const btn = el("button", {type:"button", class:"world " + state, disabled:state === "later",
+        "aria-label":`Semana ${w}, ${wk.t}` + (state === "now" ? ", estás aquí" : state === "later" ? ", todavía no llegas" : ""),
+        onclick:() => showWorld(w)},
+      state === "now" ? el("span", {class:"here"}, "Estás aquí") : null,
+      el("span", {class:"orb"}, String(w)),
+      el("span", {class:"wname"}, wk.t));
+    btn.style.left = p.x + "px"; btn.style.top = p.y + "px";
+    map.append(btn);
+    // Una estrella por cada palabra que mandaste esa semana
+    weekWords(w).slice(0, 10).forEach((_, k) => {
+      const ang = -Math.PI/2 + (k - 4.5) * 0.42 + (p.x > W/2 ? Math.PI : 0) * 0.15, r = 62 + (k % 2) * 14;
+      const st = document.createElementNS(NS, "svg"); st.setAttribute("class", "st"); st.setAttribute("width", k % 3 ? 11 : 15); st.setAttribute("height", k % 3 ? 11 : 15); st.setAttribute("viewBox", "0 0 24 24");
+      const sp = document.createElementNS(NS, "path"); sp.setAttribute("d", STAR_PATH); sp.setAttribute("fill", "currentColor"); st.append(sp);
+      const sx = p.x + Math.cos(ang) * r * (p.x > W/2 ? -1 : 1) * 0.9, sy = p.y - 16 + Math.sin(ang) * r * 0.55;
+      st.style.left = Math.min(W - 8, Math.max(8, sx)) + "px"; st.style.top = sy + "px";
+      map.append(st);
+    });
+  });
+}
+function showWorld(w){
+  const card = $("#worldCard"), wk = WEEKS[w-1];
+  const ds = datesOf(w), pages = ds.filter(d => S.pages[d] && S.pages[d].done).length;
+  const words = weekWords(w), acts = S.activities.filter(a => a.week === w && a.done), cita = S.artist[w];
+  card.replaceChildren(...[
+    el("div", {class:"row-between"}, el("h3", {}, wk.t), el("button", {type:"button", class:"close", "aria-label":"Cerrar", onclick:() => { card.hidden = true; }}, "×")),
+    el("p", {class:"small"}, `Semana ${w} · ${weekRange(w)}`),
+    el("h4", {}, "Páginas"), el("p", {style:"margin:0; font-size:15px"}, pages ? `${pages} ${pages === 1 ? "mañana" : "mañanas"}` : "Esta vez no hubo, y está bien."),
+    words.length ? [el("h4", {}, "Tus estrellas"), el("p", {class:"words", style:"margin:0"}, words.map(x => x.w).join(" · "))] : null,
+    acts.length ? [el("h4", {}, "Lo que hiciste"), el("ul", {}, acts.map(a => el("li", {}, a.title + (a.doneAt ? " · " + short(a.doneAt) : ""))))] : null,
+    cita ? [el("h4", {}, "Cita con el Artista"), el("p", {style:"margin:0; font-size:15px"}, (cita.date ? short(cita.date) + (cita.note ? " · " : "") : "") + (cita.note || ""))] : null].flat().filter(Boolean));
+  card.hidden = false; card.scrollIntoView({block:"nearest", behavior:"smooth"});
+}
+$("#openMap").addEventListener("click", openMap);
+$$("[data-map]").forEach(b => b.addEventListener("click", openMap));
+$("#closeMap").addEventListener("click", () => closeSheet("#mapSheet"));
+
 /* ================= Ajustes ================= */
 function renderSettings(){
   const sel = $("#weekSel");
@@ -1416,11 +1583,12 @@ $("#exportTxt").addEventListener("click", () => {
   for(let w = 1; w <= S.week; w++){
     const ds = datesOf(w);
     const n = ds.filter(d => S.pages[d] && S.pages[d].done).length;
-    const words = ds.map(d => S.pages[d] && S.pages[d].word).filter(Boolean);
+    const words = ds.map(d => S.words[d]).filter(Boolean);
     const acts = S.activities.filter(a => a.week === w), ci = S.checkins[w];
     L.push(`— Semana ${w}: ${WEEKS[w-1].t} (desde el ${fmt(weekStart(w), {day:"numeric", month:"long"})}) —`, `Páginas: ${n} ${n === 1 ? "mañana" : "mañanas"}`);
     if(words.length) L.push("Palabras: " + words.join(", "));
-    acts.forEach(a => L.push(`  [${a.done ? "x" : " "}] ${a.title}${a.note ? " — " + a.note : ""}`));
+    acts.forEach(a => L.push(`  [${a.done ? "x" : " "}] ${a.title}${a.done && a.doneAt ? " (" + a.doneAt + ")" : ""}${a.note ? " — " + a.note : ""}`));
+    if(S.artist[w]) L.push(`Cita con el Artista${S.artist[w].date ? " (" + S.artist[w].date + ")" : ""}: ${S.artist[w].note}`);
     if(ci){ if(ci.artist) L.push("Cita con el Artista: " + ci.artist); if(ci.artistNote) L.push("  " + ci.artistNote);
       if(ci.sync) L.push("Sincronicidades: " + ci.sync); if(ci.meaning) L.push("Lo más significativo: " + ci.meaning); }
     L.push("");

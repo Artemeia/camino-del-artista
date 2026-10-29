@@ -64,7 +64,19 @@ Registro de decisiones y avance. Sin datos personales del proceso: esos viven so
 - Quitados: pestaña y vista Coach, Check-in (lo hace a mano) y la pregunta "Para hoy". Los datos de check-ins antiguos siguen en el respaldo.
 - Pendiente de elegir: vista amplia del proceso ("Mi camino"), con opciones presentadas.
 
+**Segunda ronda (mismo día)**
+- Semanas: se pasa el mismo día que ella decide; se muestran como rango lunes a domingo. Máximo propio: dos semanas. Aviso el día 10 y el 14 (contando desde el lunes), que se pueden cerrar; la app no avanza sola.
+- Deshacer: el mismo día en que pasa de semana aparece "¿Te equivocaste? Volver a la semana N". También en Ajustes.
+- Páginas: solo las luces de los últimos 7 días (tocar para marcar). Se quitaron "Sí / Hoy no", el texto de ayuda, la lista de palabras y el mensaje de privacidad.
+- Palabra del día: casilla + botón estrella; la palabra "vuela" al recorrido (S.words, separadas de las páginas).
+- Quitados los botones "Me siento perdida" y "Estoy dándole vueltas". La ayuda inmediata (*4141, Salud Responde, 131) queda en Ajustes.
+- Actividades: fecha en que la hice (se pone sola al marcarla, editable).
+- Cita con el Artista: registro por semana (fecha y cómo fue) en Semana.
+- "Agendar en mi calendario" solo en Semana.
+- Deslizar a los lados cambia entre Hoy y Semana.
+- Mi recorrido: botón (no pestaña) que abre un mapa tipo videojuego, de abajo hacia arriba, con las 12 semanas como mundos. Estrellas = palabras. Al tocar un mundo: rango de fechas, páginas, palabras, actividades hechas con fecha y cita.
+
 **Pendiente**
-- Mi camino: vista amplia del proceso (elegir entre las opciones presentadas).
-- Fase 2: Cita con el Artista (ya no tiene lugar de registro tras quitar el check-in), Banco de ideas, pantalla de Mi caja de herramientas.
+- Fotos de la Cita con el Artista (decidido: más adelante). Requiere IndexedDB y fotos comprimidas; solo en el teléfono.
+- Banco de ideas.
 - Decidir si el repositorio queda público o privado.
