@@ -100,6 +100,9 @@ section.view.active{display:block}
 .panel .label{color:var(--green-label)}
 .row-between{display:flex; align-items:baseline; justify-content:space-between; gap:12px}
 .quiet-note{margin-top:22px}
+.words-line{margin-top:6px; font-family:var(--serif); font-style:italic; font-size:16px}
+#closeBox .pend{display:flex; align-items:center; gap:12px; min-height:44px; color:var(--ink)}
+select{width:100%; min-height:46px; padding:11px 14px; border-radius:14px; border:1.5px solid var(--input-border); background:var(--input-bg); color:var(--ink); font:inherit; font-size:16px}
 
 /* ===== Botones ===== */
 .pair{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px}
@@ -177,7 +180,7 @@ details.more summary{cursor:pointer; font-weight:700; font-size:14px; color:var(
 /* ===== Navegación ===== */
 nav.tabs{position:fixed; left:0; right:0; bottom:0; z-index:5; background:var(--bg); border-top:1px solid var(--line);
   padding:6px 10px calc(10px + env(safe-area-inset-bottom))}
-nav.tabs .inner{display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); max-width:560px; margin:0 auto}
+nav.tabs .inner{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); max-width:560px; margin:0 auto}
 nav.tabs button{min-height:48px; border:0; background:none; font-family:var(--serif); font-size:18px; color:var(--muted); cursor:pointer}
 nav.tabs button[aria-current="page"]{font-weight:600; color:var(--head)}
 .settings-btn{position:absolute; top:calc(26px + env(safe-area-inset-top)); right:14px; width:44px; height:44px; border:0; background:none; color:var(--muted); border-radius:50%; display:grid; place-items:center; cursor:pointer; z-index:2}
@@ -353,16 +356,12 @@ body.quiet .sky .aur.extra{display:none}
       </div>
       <div class="dots" id="hoyDots"></div>
       <p class="small" style="margin-top:2px">Toca un día para marcar las páginas que hiciste antes.</p>
+      <p class="small words-line" id="hoyWords" hidden></p>
       <p class="small pages-msg" id="pagesMsg" hidden></p>
       <div class="word" id="wordBox">
         <label class="f" for="pagesWord" style="color:var(--soft)">Una palabra para cómo te sentiste <span style="font-weight:400">(opcional)</span></label>
         <input type="text" id="pagesWord" maxlength="24" autocomplete="off" placeholder="liviana, espesa, curiosa…">
       </div>
-    </section>
-
-    <section class="hide-in-quiet" aria-labelledby="pregLabel" style="margin-top:26px">
-      <div class="label" id="pregLabel">Para hoy</div>
-      <p id="dailyQuestion" style="margin-top:8px; font-family:var(--serif); font-style:italic; font-size:23px; line-height:1.3; color:var(--ink)"></p>
     </section>
 
     <p class="serif-i quiet-note" id="midNotice" hidden>Entre la semana cinco y la ocho es donde más se suelta el proceso. Si aparece la resistencia, no vas mal: algo se está moviendo. Basta con lo mínimo, tus páginas y una cita corta.</p>
@@ -382,10 +381,6 @@ body.quiet .sky .aur.extra{display:none}
 
     <button type="button" class="row-link" data-agenda>
       <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>Agendar en mi calendario</span>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </button>
-    <button type="button" class="row-link" data-go="checkin" style="margin-top:0">
-      <span id="checkinLinkText">Check-in de la semana</span>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
     </button>
   </section>
@@ -423,7 +418,14 @@ body.quiet .sky .aur.extra{display:none}
       </form>
     </section>
 
-    <p class="serif-i" style="margin:16px 4px 0">Lo que no alcances no cuenta como falta. Al cerrar la semana decides si pasa a la siguiente.</p>
+    <section class="panel" id="prevBox" aria-labelledby="prevLabel" hidden>
+      <h2 class="label" id="prevLabel">Quedaron de semanas anteriores</h2>
+      <div id="prevBody"></div>
+    </section>
+
+    <p class="serif-i" style="margin:16px 4px 0">Lo que no alcances no cuenta como falta. Tú decides cuándo pasar a la semana siguiente.</p>
+
+    <section class="card" id="closeBox" aria-label="Pasar de semana"></section>
 
     <button type="button" class="row-link" data-agenda-kind="minutos" style="margin-top:18px">
       <span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg>Agendar minutos para mis actividades</span>
@@ -436,66 +438,12 @@ body.quiet .sky .aur.extra{display:none}
     </div>
   </section>
 
-  <!-- ================= CHECK-IN ================= -->
-  <section class="view" id="view-checkin" aria-labelledby="ciTitle">
-    <div class="eyebrow" id="ciEyebrow"></div>
-    <h1 id="ciTitle">Check-in</h1>
-    <div class="sub">mirar la semana sin ponerte nota</div>
-
-    <section class="card" aria-labelledby="ciPagTitle" style="margin-top:30px">
-      <h2 class="card-title" id="ciPagTitle">Páginas Matutinas</h2>
-      <div class="dots" id="ciDots"></div>
-      <p class="small" id="ciPagesSummary" style="margin-top:12px"></p>
-    </section>
-
-    <section class="card" aria-labelledby="ciArtTitle">
-      <h2 class="card-title" id="ciArtTitle">Cita con el Artista</h2>
-      <div class="chips" role="group" aria-label="¿Hiciste tu cita?" id="artistChips">
-        <button class="chip" type="button" data-v="si" aria-pressed="false">La hice</button>
-        <button class="chip" type="button" data-v="parcial" aria-pressed="false">A medias</button>
-        <button class="chip" type="button" data-v="no" aria-pressed="false">Esta vez no</button>
-      </div>
-      <label class="f" for="ciArtist">¿Cómo fue? <span style="font-weight:400">(opcional)</span></label>
-      <textarea id="ciArtist" placeholder="dónde fuiste, qué notaste…"></textarea>
-      <button type="button" class="text-link" data-agenda-kind="cita" style="margin-top:10px; color:var(--eyebrow)">Agendar la próxima cita</button>
-    </section>
-
-    <section class="panel" aria-labelledby="ciActLabel">
-      <h2 class="label" id="ciActLabel">Actividades de la semana</h2>
-      <div id="ciActs"></div>
-    </section>
-
-    <section class="card" aria-labelledby="ciSyncTitle">
-      <h2 class="card-title" id="ciSyncTitle">Lo que apareció</h2>
-      <label class="f" for="ciSync">Sincronicidades</label>
-      <textarea id="ciSync" placeholder="coincidencias, apoyos inesperados…"></textarea>
-      <label class="f" for="ciMeaning">Lo más significativo</label>
-      <textarea id="ciMeaning" placeholder="una cosa basta"></textarea>
-    </section>
-
-    <button class="pill pri btn-wide" id="saveCheckin" type="button">Guardar check-in</button>
-    <p class="small" id="checkinSaved" style="text-align:center; margin-top:10px"></p>
-  </section>
-
-  <!-- ================= COACH ================= -->
-  <section class="view" id="view-coach" aria-labelledby="coachTitle">
-    <div class="eyebrow">Tu coach</div>
-    <h1 id="coachTitle">Pronto</h1>
-    <div class="sub">llega en la siguiente fase</div>
-    <p class="serif-p" style="margin-top:24px">Mientras tanto, si te sientes perdida o le estás dando vueltas a algo, estos dos botones te guían en un par de minutos hacia algo pequeño que hacer.</p>
-    <div class="help pair">
-      <button type="button" class="lost" data-flow="perdida">Me siento perdida</button>
-      <button type="button" class="loop" data-flow="vueltas">Estoy dándole vueltas</button>
-    </div>
-  </section>
 </main>
 
 <nav class="tabs" aria-label="Secciones">
   <div class="inner">
     <button type="button" data-view="hoy" aria-current="page">Hoy</button>
     <button type="button" data-view="semana">Semana</button>
-    <button type="button" data-view="checkin">Check-in</button>
-    <button type="button" data-view="coach">Coach</button>
   </div>
 </nav>
 
@@ -657,13 +605,10 @@ body.quiet .sky .aur.extra{display:none}
     </section>
     <section class="card">
       <h2 class="card-title">Mi camino</h2>
-      <label class="f" for="startDate">Fecha de inicio</label>
-      <input type="date" id="startDate">
-      <p class="small" id="pauseState" style="margin:12px 0"></p>
-      <div class="pair">
-        <button class="pill sec" type="button" id="pauseBtn">Pausar</button>
-        <button class="pill sec" type="button" id="restartBtn">Reiniciar</button>
-      </div>
+      <label class="f" for="weekSel">Semana en la que estoy</label>
+      <select id="weekSel"></select>
+      <p class="small" style="margin:10px 0 12px">Para corregir si avanzaste por error. Lo normal es pasar de semana desde la pantalla Semana, cuando tú te sientas lista.</p>
+      <button class="pill sec" type="button" id="restartBtn" style="width:100%">Reiniciar desde la semana uno</button>
     </section>
     <section class="card">
       <h2 class="card-title">Mis datos</h2>
@@ -755,7 +700,7 @@ const STORIES = ["“No soy artista”","“Llego tarde”","“Tiene que quedar
 
 /* ================= Estado ================= */
 const KEY = "camino-del-artista:v1";
-const DEFAULT = {version:1, startDate:"2026-10-12", pausedAt:null, pauseDays:0, theme:"auto", pages:{}, activities:[], checkins:{}, toolbox:{}, scheduled:[], seeded:{}};
+const DEFAULT = {version:1, startDate:"2026-10-12", week:null, weekStarts:{}, finishedAt:null, pausedAt:null, pauseDays:0, theme:"auto", pages:{}, activities:[], checkins:{}, toolbox:{}, scheduled:[], seeded:{}};
 const clone = o => JSON.parse(JSON.stringify(o));
 let S = load();
 function load(){
@@ -773,10 +718,16 @@ const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate()+n); return
 const diffDays = (a, b) => Math.round((parse(b) - parse(a)) / DAY);
 const today = () => iso(new Date());
 const fmt = (s, o) => parse(s).toLocaleDateString("es-CL", o || {weekday:"long", day:"numeric", month:"long"});
-const dayIndex = () => diffDays(S.startDate, S.pausedAt || today()) - S.pauseDays;
-function currentWeek(){ const d = dayIndex(); return d < 0 ? 0 : Math.min(12, Math.floor(d/7) + 1); }
-const weekStart = w => addDays(S.startDate, S.pauseDays + (w-1)*7);
-const weekDates = w => Array.from({length:7}, (_,i) => addDays(weekStart(w), i));
+/* La semana avanza solo cuando ella lo decide (desde la pantalla Semana).
+   weekStarts guarda el día en que empezó cada semana, para poder mirar el camino hacia atrás. */
+const currentWeek = () => S.week;
+const weekStart = w => S.weekStarts[w] || today();
+const weekLast = w => (w < S.week && S.weekStarts[w+1]) ? addDays(S.weekStarts[w+1], -1) : today();
+function datesOf(w){ const out = []; for(let d = weekStart(w); d <= weekLast(w) && out.length < 400; d = addDays(d, 1)) out.push(d); return out; }
+function caminoEnd(){ const w = Number.isInteger(S.week) ? S.week : 1; const e = addDays((S.weekStarts && S.weekStarts[w]) || S.startDate, (13 - w)*7 - 1); return e < today() ? today() : e; }
+const lastDays = n => Array.from({length:n}, (_,i) => addDays(today(), i - n + 1));
+// Semana que habría calculado la versión anterior (solo por fecha). Se usa una vez, al migrar.
+const dateWeek = () => { const d = diffDays(S.startDate, S.pausedAt || today()) - (S.pauseDays || 0); return d < 0 ? 1 : Math.min(12, Math.floor(d/7) + 1); };
 const LETTERS = ["D","L","M","M","J","V","S"];
 
 /* ================= Utilidades ================= */
@@ -823,6 +774,17 @@ function sanitize(){
   if(S.pausedAt && !isDate(S.pausedAt)) S.pausedAt = null;
   S.pauseDays = Number.isFinite(S.pauseDays) && S.pauseDays >= 0 ? Math.round(S.pauseDays) : 0;
   if(!["auto","light","dark"].includes(S.theme)) S.theme = "auto";
+  // Migración a semanas manuales (28-oct-2026): ella estaba en la semana 2, aunque la fecha decía 3.
+  const MIGRATE_WEEK = 2;
+  if(!(Number.isInteger(S.week) && S.week >= 1 && S.week <= 12)) S.week = Math.min(MIGRATE_WEEK, dateWeek());
+  const ws = {};
+  const src = S.weekStarts && typeof S.weekStarts === "object" && !Array.isArray(S.weekStarts) ? S.weekStarts : {};
+  for(let w = 1; w <= S.week; w++){
+    ws[w] = isDate(src[w]) ? src[w] : (w === 1 ? S.startDate : addDays(S.startDate, (S.pauseDays || 0) + (w-1)*7));
+    if(w > 1 && ws[w] < ws[w-1]) ws[w] = ws[w-1];
+  }
+  S.weekStarts = ws;
+  if(!isDate(S.finishedAt) || S.week < 12) S.finishedAt = null;
   const pages = {};
   for(const [d, v] of Object.entries(S.pages && typeof S.pages === "object" ? S.pages : {})){
     if(isDate(d) && v && typeof v === "object") pages[d] = v.done ? {done:true, word:typeof v.word === "string" ? v.word : ""} : {done:false};
@@ -830,11 +792,12 @@ function sanitize(){
   S.pages = pages;
   S.activities = (Array.isArray(S.activities) ? S.activities : []).filter(a => a && typeof a.title === "string" && a.title.trim()).map(a => ({
     id:String(a.id || uid()), week:Math.min(12, Math.max(1, Math.round(Number(a.week)) || 1)), title:a.title, chapter:String(a.chapter || ""),
-    note:String(a.note || ""), steps:String(a.steps || ""), src:String(a.src || ""), done:!!a.done, created:isDate(a.created) ? a.created : today(), carried:!!a.carried}));
+    note:String(a.note || ""), steps:String(a.steps || ""), src:String(a.src || ""), done:!!a.done, created:isDate(a.created) ? a.created : today(), carried:!!a.carried, left:!!a.left}));
+  for(const a of S.activities) if(a.week > S.week) a.week = S.week;
   if(!S.seeded || typeof S.seeded !== "object" || Array.isArray(S.seeded)) S.seeded = {};
   if(!S.checkins || typeof S.checkins !== "object" || Array.isArray(S.checkins)) S.checkins = {};
   if(!S.toolbox || typeof S.toolbox !== "object" || Array.isArray(S.toolbox)) S.toolbox = {};
-  const end = addDays(S.startDate, S.pauseDays + 83);
+  const end = caminoEnd();
   S.scheduled = (Array.isArray(S.scheduled) ? S.scheduled : []).filter(it => it && isDate(it.date)).map(it => {
     const wd = (parse(it.date).getDay() + 6) % 7;
     const r = it.repeat && typeof it.repeat === "object" ? it.repeat : {};
@@ -860,23 +823,23 @@ function applyTheme(){
 
 /* ================= Render ================= */
 function render(){
-  const w = currentWeek(), wn = Math.max(1, w), wk = WEEKS[wn-1];
+  const w = currentWeek(), wn = w, wk = WEEKS[wn-1];
   document.documentElement.style.setProperty("--tint", wk.tint + "deg");
   document.body.classList.toggle("quiet", w === 4);
   // Cada pantalla se dibuja por separado: si una falla, las demás siguen funcionando.
   safe("Hoy", () => renderHoy(w, wn, wk));
   safe("Agenda de hoy", renderTodayNote);
   safe("Semana", () => renderSemana(wn, wk));
-  safe("Check-in", () => renderCheckin(wn, wk));
 }
 
 // Cada punto es un botón: toca un día pasado (o hoy) para marcar o desmarcar sus páginas.
-function dots(container, wn){
+// Muestra los últimos 7 días, sin importar en qué semana del libro vayas.
+function dots(container, dates){
   const t = today(); let n = 0;
   container.replaceChildren();
   container.setAttribute("role", "group");
-  container.setAttribute("aria-label", "Páginas de esta semana. Toca un día para marcarlo.");
-  for(const d of weekDates(wn)){
+  container.setAttribute("aria-label", "Páginas de los últimos siete días. Toca un día para marcarlo.");
+  for(const d of dates){
     const on = !!(S.pages[d] && S.pages[d].done); if(on) n++;
     const isT = d === t, future = d > t;
     const name = fmt(d, {weekday:"long", day:"numeric"});
@@ -899,15 +862,13 @@ function toggleDay(d){
 function renderHoy(w, wn, wk){
   const t = today();
   $("#hoyDate").textContent = fmt(t, {weekday:"long", day:"numeric", month:"long"}).replace(",", "");
-  if(w === 0){
-    $("#hoyTitle").textContent = "Antes de empezar";
-    $("#hoySub").textContent = "tu camino empieza el " + fmt(S.startDate, {day:"numeric", month:"long"});
-  } else if(dayIndex() >= 84){
+  if(S.finishedAt){
     $("#hoyTitle").textContent = "Doce semanas";
-    $("#hoySub").textContent = "completaste el camino";
+    $("#hoySub").textContent = "cerraste tu camino el " + fmt(S.finishedAt, {day:"numeric", month:"long"});
   } else {
+    const ws = weekStart(wn);
     $("#hoyTitle").textContent = wk.t;
-    $("#hoySub").textContent = `semana ${NUM[wn-1]} · día ${(dayIndex() % 7) + 1} de 7` + (S.pausedAt ? " · en pausa" : "");
+    $("#hoySub").textContent = `semana ${NUM[wn-1]} · ` + (ws === t ? "empieza hoy" : "desde el " + fmt(ws, {day:"numeric", month:"long"}));
   }
 
   const p = S.pages[t];
@@ -918,12 +879,15 @@ function renderHoy(w, wn, wk){
   $("#sky").classList.toggle("glow", yes);
   $("#wordBox").classList.toggle("show", yes);
   if(document.activeElement !== $("#pagesWord")) $("#pagesWord").value = (p && p.word) || "";
+  $("#pagesWord").onchange = () => render();
   const msg = $("#pagesMsg");
   msg.hidden = !(yes || no);
   msg.textContent = yes ? "Lo que escribiste es solo tuyo y se queda en el papel." : "Está bien. Mañana hay otra página en blanco.";
-  dots($("#hoyDots"), wn);
-
-  $("#dailyQuestion").textContent = wk.q[Math.abs(diffDays("2026-01-01", t)) % wk.q.length];
+  const week7 = lastDays(7);
+  dots($("#hoyDots"), week7);
+  const words = week7.map(d => S.pages[d] && S.pages[d].word).filter(Boolean);
+  $("#hoyWords").hidden = !words.length;
+  $("#hoyWords").textContent = words.length ? "Tus palabras: " + words.join(" · ") : "";
   $("#midNotice").hidden = !(w >= 5 && w <= 8);
 
   const body = $("#pendingBody"); body.replaceChildren();
@@ -937,7 +901,6 @@ function renderHoy(w, wn, wk){
     const any = S.activities.some(a => a.week === wn);
     body.append(el("p", {style:"margin-top:8px; font-size:15px; color:var(--panel-ink)"}, any ? "No te quedan pendientes esta semana." : "Aún no anotas actividades para esta semana."));
   }
-  $("#checkinLinkText").textContent = (w > 0 && dayIndex() % 7 === 6) ? "Hoy cierras la semana · check-in" : "Check-in de la semana";
 }
 
 $("#pagesYes").addEventListener("click", () => {
@@ -959,11 +922,8 @@ $("#pagesWord").addEventListener("input", e => {
 /* ---------- Semana ---------- */
 let editing = null;
 function renderSemana(wn, wk){
-  const ws = weekStart(wn), we = addDays(ws, 6);
-  const same = parse(ws).getMonth() === parse(we).getMonth();
-  $("#semEyebrow").textContent = `Semana ${wn} · ` + (same
-    ? `${parse(ws).getDate()} al ${fmt(we, {day:"numeric", month:"long"})}`
-    : `${fmt(ws, {day:"numeric", month:"short"})} al ${fmt(we, {day:"numeric", month:"short"})}`);
+  const ws = weekStart(wn);
+  $("#semEyebrow").textContent = `Semana ${wn} · ` + (ws === today() ? "empieza hoy" : "desde el " + fmt(ws, {day:"numeric", month:"long"}));
   $("#semTitle").textContent = wk.t;
   $("#semSummary").textContent = wk.s;
   $("#semChapter").textContent = `En tu libro: capítulo de la semana ${wn}`;
@@ -986,6 +946,78 @@ function renderSemana(wn, wk){
         editing === a.id ? editBox(a) : null),
       el("button", {type:"button", class:"edit-btn", "aria-label":"Editar " + a.title, "aria-expanded":String(editing === a.id), onclick:() => { editing = editing === a.id ? null : a.id; render(); }}, svgEdit())));
   }
+  renderPrev(wn);
+  renderClose(wn);
+}
+
+/* Pendientes de semanas anteriores que nadie decidió dejar atrás: no se pierden. */
+function renderPrev(wn){
+  const prev = S.activities.filter(a => a.week < wn && !a.done && !a.left);
+  $("#prevBox").hidden = !prev.length;
+  const body = $("#prevBody"); body.replaceChildren();
+  if(!prev.length) return;
+  body.append(el("p", {style:"margin-top:6px; font-size:15px; color:var(--panel-ink)"}, "Siguen aquí, sin apuro. Tú decides si las traes a esta semana."));
+  for(const a of prev){
+    const id = "prev-" + a.id;
+    body.append(el("div", {style:"display:flex; align-items:center; gap:12px; margin-top:6px; min-height:44px"},
+      el("input", {type:"checkbox", id, onchange:() => { toggleAct(a.id); toast("Hecha."); }}),
+      el("label", {for:id, style:"font-size:16px; color:var(--panel-ink)"}, a.title, el("span", {class:"act-meta", style:"display:block"}, "semana " + a.week))));
+  }
+  body.append(el("div", {class:"pair", style:"margin-top:12px"},
+    el("button", {type:"button", class:"pill pri", onclick:() => { prev.forEach(a => { a.week = wn; a.carried = true; }); save(); render(); toast("Ahora están en tu semana " + wn + "."); }}, "Traerlas aquí"),
+    el("button", {type:"button", class:"pill sec", onclick:() => { prev.forEach(a => { a.left = true; }); save(); render(); toast("Quedan en su semana. Sin culpa."); }}, "Dejarlas ahí")));
+}
+
+/* Pasar de semana: solo cuando ella lo decide. */
+let closing = false;
+function renderClose(wn){
+  const box = $("#closeBox"); box.replaceChildren();
+  const last = wn === 12;
+  if(S.finishedAt){ box.append(el("p", {class:"serif-i"}, "Cerraste tu camino el " + fmt(S.finishedAt, {day:"numeric", month:"long"}) + ".")); return; }
+  const days = diffDays(weekStart(wn), today()) + 1;
+  if(!closing){
+    box.append(el("h2", {class:"card-title"}, last ? "Cerrar el camino" : "La semana " + (wn+1)),
+      el("p", {class:"small", style:"margin:4px 0 12px"}, last ? "Cuando sientas que terminaste, cierras aquí." : "Pasas cuando terminaste el capítulo y te sientes lista. No hay fecha que cumplir."),
+      ...(days >= 14 ? [el("p", {class:"serif-i", style:"margin-bottom:12px"}, "Llevas un buen tiempo en esta semana. Si es tu ritmo, está perfecto. Si notas que estás evitando algo, una actividad pequeña basta para moverte.")] : []),
+      el("button", {type:"button", class:"pill sec", style:"width:100%", onclick:() => { closing = true; render(); }}, last ? "Cerrar mi camino" : "Estoy lista para la semana " + (wn+1)));
+    return;
+  }
+  const pend = S.activities.filter(a => a.week === wn && !a.done);
+  box.append(el("h2", {class:"card-title"}, last ? "Antes de cerrar" : "Antes de pasar"));
+  if(pend.length && !last){
+    box.append(el("p", {class:"small", style:"margin:4px 0 8px"}, "Te quedaron estas. Marca las que quieres llevar a la semana " + (wn+1) + ". Las demás se quedan aquí, sin culpa."));
+    for(const a of pend){
+      const id = "cl-" + a.id;
+      box.append(el("div", {class:"pend"}, el("input", {type:"checkbox", id, checked:true, "data-id":a.id, style:"width:22px; height:22px; accent-color:var(--green); flex:none"}), el("label", {for:id}, a.title)));
+    }
+  } else {
+    box.append(el("p", {class:"small", style:"margin:4px 0 8px"}, last ? "Doce semanas. Lo que quedó pendiente también es parte del camino." : "No te quedan pendientes en esta semana."));
+  }
+  box.append(el("div", {class:"pair", style:"margin-top:14px"},
+    el("button", {type:"button", class:"pill pri", onclick:() => {
+      const keep = new Set($$("#closeBox input[data-id]").filter(i => i.checked).map(i => i.dataset.id));
+      advanceWeek(wn, keep);
+    }}, last ? "Cerrar" : "Pasar a la semana " + (wn+1)),
+    el("button", {type:"button", class:"pill sec", onclick:() => { closing = false; render(); }}, "Todavía no")));
+}
+function advanceWeek(wn, keep){
+  closing = false;
+  if(wn === 12){ S.finishedAt = today(); save(); render(); toast("Doce semanas. Gracias por presentarte."); return; }
+  for(const a of S.activities) if(a.week === wn && !a.done){
+    if(keep.has(a.id)){ a.week = wn + 1; a.carried = true; a.left = false; } else a.left = true;
+  }
+  S.week = wn + 1; S.weekStarts[wn + 1] = today();
+  seedBookTasks(); save(); render(); window.scrollTo({top:0});
+  toast("Semana " + NUM[wn] + ": " + WEEKS[wn].t + ".");
+}
+function setWeek(n){
+  if(n === S.week) return;
+  if(n > S.week){ for(let w = S.week + 1; w <= n; w++) S.weekStarts[w] = S.weekStarts[w] || today(); }
+  else {
+    for(let w = n + 1; w <= 12; w++) delete S.weekStarts[w];
+    for(const a of S.activities) if(a.week > n) a.week = n;
+  }
+  S.week = n; S.finishedAt = null; closing = false; seedBookTasks(); save(); render();
 }
 function editBox(a){
   const title = el("input", {type:"text", value:a.title, maxlength:120, "aria-label":"Título"});
@@ -1001,51 +1033,8 @@ function toggleAct(id){ const a = S.activities.find(x => x.id === id); if(a){ a.
 $("#addActForm").addEventListener("submit", e => {
   e.preventDefault();
   const v = $("#newAct").value.trim(); if(!v) return;
-  S.activities.push({id:uid(), week:Math.max(1, currentWeek()), title:v, chapter:"", note:"", steps:"", done:false, created:today()});
+  S.activities.push({id:uid(), week:currentWeek(), title:v, chapter:"", note:"", steps:"", done:false, created:today()});
   $("#newAct").value = ""; save(); render(); $("#newAct").focus();
-});
-
-/* ---------- Check-in ---------- */
-function renderCheckin(wn, wk){
-  $("#ciEyebrow").textContent = `Semana ${wn} · ${wk.t}`;
-  const n = dots($("#ciDots"), wn);
-  const words = weekDates(wn).map(d => S.pages[d] && S.pages[d].word).filter(Boolean);
-  $("#ciPagesSummary").textContent = (n === 0 ? "Esta semana aún no marcas páginas. Cada mañana es nueva."
-    : `Escribiste ${n} ${n===1 ? "mañana" : "mañanas"} esta semana.`) + (words.length ? " Tus palabras: " + words.join(", ") + "." : "");
-
-  const ci = S.checkins[wn] || {};
-  $$("#artistChips .chip").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.v === ci.artist)));
-  const inCi = document.activeElement && document.activeElement.closest && document.activeElement.closest("#view-checkin");
-  if(!inCi){ $("#ciArtist").value = ci.artistNote || ""; $("#ciSync").value = ci.sync || ""; $("#ciMeaning").value = ci.meaning || ""; }
-
-  const acts = S.activities.filter(a => a.week === wn);
-  const box = $("#ciActs"); box.replaceChildren();
-  const P = (t, bold) => el("p", {style:"margin-top:8px; font-size:15px; color:var(--panel-ink)" + (bold ? "; font-weight:700" : "")}, t);
-  const UL = items => el("ul", {class:"concepts", style:"color:var(--panel-ink)"}, items.map(a => el("li", {}, a.title)));
-  if(!acts.length) box.append(P("No anotaste actividades esta semana. También está bien."));
-  else{
-    const done = acts.filter(a => a.done), pend = acts.filter(a => !a.done);
-    if(done.length) box.append(P("Hiciste", true), UL(done));
-    if(pend.length){
-      box.append(P("Quedaron para otro momento", true), UL(pend));
-      if(wn < 12) box.append(el("button", {type:"button", class:"text-link", style:"margin-top:8px", onclick:() => carryOver(wn)}, "Pasarlas a la semana " + (wn+1)));
-    }
-  }
-  $("#checkinSaved").textContent = ci.savedAt ? "Guardado el " + fmt(ci.savedAt, {day:"numeric", month:"long"}) : "";
-}
-function carryOver(wn){
-  let k = 0;
-  for(const a of S.activities) if(a.week === wn && !a.done){ a.week = wn+1; a.carried = true; k++; }
-  save(); render(); toast(k + (k===1 ? " actividad pasó" : " actividades pasaron") + " a la semana " + (wn+1));
-}
-$$("#artistChips .chip").forEach(c => c.addEventListener("click", () => {
-  const wn = Math.max(1, currentWeek()); const ci = S.checkins[wn] = S.checkins[wn] || {};
-  ci.artist = ci.artist === c.dataset.v ? null : c.dataset.v; save(); render();
-}));
-$("#saveCheckin").addEventListener("click", () => {
-  const wn = Math.max(1, currentWeek()); const ci = S.checkins[wn] = S.checkins[wn] || {};
-  ci.artistNote = $("#ciArtist").value.trim(); ci.sync = $("#ciSync").value.trim(); ci.meaning = $("#ciMeaning").value.trim();
-  ci.savedAt = today(); save(); if(document.activeElement) document.activeElement.blur(); render(); toast("Check-in guardado.");
 });
 
 /* ================= Navegación ================= */
@@ -1177,8 +1166,7 @@ const WD = ["L","M","M","J","V","S","D"];            // lunes a domingo
 const WD_RRULE = ["MO","TU","WE","TH","FR","SA","SU"];
 const WD_NAME = ["lunes","martes","miércoles","jueves","viernes","sábado","domingo"];
 const wdIndex = s => (parse(s).getDay() + 6) % 7;      // 0 = lunes
-const caminoEnd = () => addDays(S.startDate, S.pauseDays + 83);
-const weekEnd = () => addDays(weekStart(Math.max(1, currentWeek())), 6);
+const weekEnd = () => { const e = addDays(weekStart(S.week), 6); return e < today() ? today() : e; };
 const TZ = (() => { try{ return Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Santiago"; }catch(e){ return "America/Santiago"; } })();
 
 let calMonth = null, ev = null;
@@ -1400,24 +1388,23 @@ function renderTodayNote(){
 
 /* ================= Ajustes ================= */
 function renderSettings(){
-  $("#startDate").value = S.startDate;
-  $("#pauseState").textContent = S.pausedAt
-    ? "En pausa desde el " + fmt(S.pausedAt, {day:"numeric", month:"long"}) + ". Al retomar, el calendario se corre sin penalización."
-    : (S.pauseDays ? `Pausas acumuladas: ${S.pauseDays} ${S.pauseDays === 1 ? "día" : "días"}.` : "Puedes pausar o reiniciar cuando lo necesites.");
-  $("#pauseBtn").textContent = S.pausedAt ? "Retomar" : "Pausar";
+  const sel = $("#weekSel");
+  sel.replaceChildren(...WEEKS.map((wk, i) => el("option", {value:String(i+1)}, `Semana ${i+1} · ${wk.t}`)));
+  sel.value = String(S.week);
 }
 $("#openSettings").addEventListener("click", () => { renderSettings(); applyTheme(); openSheet("#settingsSheet"); });
 $("#closeSettings").addEventListener("click", () => closeSheet("#settingsSheet"));
 $$("#themeChips .chip").forEach(c => c.addEventListener("click", () => { S.theme = c.dataset.t; save(); applyTheme(); }));
-$("#startDate").addEventListener("change", e => { if(e.target.value){ S.startDate = e.target.value; save(); render(); renderSettings(); } });
-$("#pauseBtn").addEventListener("click", () => {
-  if(S.pausedAt){ S.pauseDays += Math.max(0, diffDays(S.pausedAt, today())); S.pausedAt = null; toast("Retomaste. Bienvenida de vuelta."); }
-  else { S.pausedAt = today(); toast("Camino en pausa. Aquí te espero."); }
-  save(); render(); renderSettings();
+$("#weekSel").addEventListener("change", e => {
+  const n = Number(e.target.value);
+  if(n < S.week && !confirm(`¿Volver a la semana ${n}? Las actividades de semanas posteriores pasan a esa semana.`)){ renderSettings(); return; }
+  setWeek(n); renderSettings(); toast("Ahora estás en la semana " + n + ".");
 });
 $("#restartBtn").addEventListener("click", () => {
-  if(!confirm("¿Reiniciar el camino desde hoy? Tus registros anteriores se mantienen.")) return;
-  S.startDate = today(); S.pausedAt = null; S.pauseDays = 0; save(); render(); renderSettings(); toast("Nuevo comienzo: semana uno.");
+  if(!confirm("¿Reiniciar el camino desde hoy, en la semana uno? Tus registros anteriores se mantienen.")) return;
+  S.startDate = today(); S.week = 1; S.weekStarts = {1:today()}; S.finishedAt = null; S.pausedAt = null; S.pauseDays = 0;
+  for(const a of S.activities) if(a.week > 1) a.week = 1;
+  save(); render(); renderSettings(); toast("Nuevo comienzo: semana uno.");
 });
 function download(name, text, type){
   const a = el("a", {href:URL.createObjectURL(new Blob([text], {type})), download:name});
@@ -1426,11 +1413,13 @@ function download(name, text, type){
 $("#exportJson").addEventListener("click", () => download(`camino-${today()}.json`, JSON.stringify(S, null, 2), "application/json"));
 $("#exportTxt").addEventListener("click", () => {
   const L = ["El Camino del Artista · mis registros", "Inicio: " + S.startDate, ""];
-  for(let w = 1; w <= 12; w++){
-    const n = weekDates(w).filter(d => S.pages[d] && S.pages[d].done).length;
+  for(let w = 1; w <= S.week; w++){
+    const ds = datesOf(w);
+    const n = ds.filter(d => S.pages[d] && S.pages[d].done).length;
+    const words = ds.map(d => S.pages[d] && S.pages[d].word).filter(Boolean);
     const acts = S.activities.filter(a => a.week === w), ci = S.checkins[w];
-    if(!n && !acts.length && !ci) continue;
-    L.push(`— Semana ${w}: ${WEEKS[w-1].t} —`, `Páginas: ${n} mañanas`);
+    L.push(`— Semana ${w}: ${WEEKS[w-1].t} (desde el ${fmt(weekStart(w), {day:"numeric", month:"long"})}) —`, `Páginas: ${n} ${n === 1 ? "mañana" : "mañanas"}`);
+    if(words.length) L.push("Palabras: " + words.join(", "));
     acts.forEach(a => L.push(`  [${a.done ? "x" : " "}] ${a.title}${a.note ? " — " + a.note : ""}`));
     if(ci){ if(ci.artist) L.push("Cita con el Artista: " + ci.artist); if(ci.artistNote) L.push("  " + ci.artistNote);
       if(ci.sync) L.push("Sincronicidades: " + ci.sync); if(ci.meaning) L.push("Lo más significativo: " + ci.meaning); }
@@ -1446,7 +1435,7 @@ $("#importJson").addEventListener("change", async e => {
     const data = JSON.parse(await f.text());
     if(!data || data.version !== 1 || !data.startDate) throw new Error();
     if(!confirm("Esto reemplaza los datos de este dispositivo por los del archivo. ¿Seguir?")) return;
-    S = Object.assign(clone(DEFAULT), data); save(); applyTheme(); render(); renderSettings(); toast("Respaldo importado.");
+    S = Object.assign(clone(DEFAULT), data); sanitize(); save(); applyTheme(); render(); renderSettings(); toast("Respaldo importado.");
   }catch(err){ toast("Ese archivo no parece un respaldo válido."); }
   e.target.value = "";
 });

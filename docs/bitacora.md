@@ -50,6 +50,21 @@ Registro de decisiones y avance. Sin datos personales del proceso: esos viven so
 - Tareas de la semana 1 (3 a 10) cargadas como resumen propio: tres viejos críticos, escribir una historia, carta en mi defensa, tres defensores, carta de agradecimiento, cinco vidas imaginarias, críticas a afirmaciones, caminata. Se cargan una vez; si se borran no vuelven.
 - Como la app ya está en la semana 2, aparecen ahí marcadas "cap. 1 · viene de la semana anterior".
 
+## 2026-10-28
+
+**Error corregido**
+- La semana se calculaba solo por fecha. Las tareas de la semana 1 se cargaron en la 2 y, cuando el calendario pasó a la 3, quedaron atrapadas en la 2 sin pantalla que las mostrara. El botón de pasar pendientes solo movía las de la semana en curso.
+
+**Decisiones**
+- Semanas manuales: la semana avanza solo cuando ella lo decide, desde Semana ("Estoy lista para la semana N"). Al pasar elige qué pendientes lleva; las no elegidas quedan en su semana marcadas como dejadas.
+- Pendientes de semanas anteriores no decididos se muestran en Semana ("Traerlas aquí" / "Dejarlas ahí").
+- Migración: quedó en la semana 2 (donde ella estaba), con inicio de semana 2 el 19 de octubre. Ajustes permite corregir la semana o reiniciar. Se quitó "Pausar" (ya no tiene sentido).
+- Aviso suave si lleva 14 días o más en una semana (ritmo o resistencia), sin contador.
+- Palabras de las páginas: se guardaban, pero solo se veían en el check-in. Ahora aparecen en Hoy (últimos 7 días) y en la exportación de texto. Los puntos de Hoy muestran los últimos 7 días.
+- Quitados: pestaña y vista Coach, Check-in (lo hace a mano) y la pregunta "Para hoy". Los datos de check-ins antiguos siguen en el respaldo.
+- Pendiente de elegir: vista amplia del proceso ("Mi camino"), con opciones presentadas.
+
 **Pendiente**
-- Fase 2: Cita con el Artista, Banco de ideas, chat con el coach, Mi camino (sendero o constelación), pantalla de Mi caja de herramientas.
+- Mi camino: vista amplia del proceso (elegir entre las opciones presentadas).
+- Fase 2: Cita con el Artista (ya no tiene lugar de registro tras quitar el check-in), Banco de ideas, pantalla de Mi caja de herramientas.
 - Decidir si el repositorio queda público o privado.

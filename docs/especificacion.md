@@ -7,7 +7,7 @@ Webapp personal que me acompaña durante las 12 semanas de "El Camino del Artist
 - Páginas Matutinas: tres páginas a mano, cada mañana, flujo de conciencia. La app NUNCA pide, guarda ni analiza su contenido. Solo registra si las hice (sí/no) y, de forma opcional, una sensación en una palabra. Si alguna vez propongo escribirlas en la app, recuérdame por qué Cameron pide hacerlas a mano.
 - Cita con el Artista: salida semanal, sola, de unas dos horas, lúdica y no productiva. La app ayuda a planificarla, propone ideas concretas y registra cómo fue.
 - Estructura de 12 semanas, cada una con su tema: seguridad, identidad, poder, integridad, posibilidad, abundancia, conexión, fuerza, compasión, autoprotección, autonomía y fe.
-- Check-in semanal: frecuencia de páginas, cita con el artista, actividades de la semana que hice, sincronicidades y lo más significativo de la semana.
+- Check-in semanal: lo hago a mano, fuera de la app (decisión del 28 de octubre de 2026).
 - Semana 4 (privación de lectura): la interfaz se simplifica al mínimo y el coach habla menos.
 - Lenguaje espiritual: Cameron habla de Dios/Creador. Respétalo, pero ofrece siempre una lectura laica posible (intuición, flujo, la vida).
 - Derechos de autor: no reproducir textos, tareas ni afirmaciones del libro de forma literal. Parafrasear los conceptos, crear ejercicios propios inspirados en ellos y remitirme al capítulo correspondiente del libro.
@@ -64,12 +64,12 @@ Decisión del 18 de octubre de 2026: reemplaza la dirección anterior "ecléctic
 - Microinteracciones con encanto pero breves: por ejemplo, una luz que se enciende o una aurora que se intensifica al marcar mis Páginas Matutinas.
 - Antes de cambios grandes de diseño, muéstrame opciones.
 - Pantallas iniciales:
-  1. Hoy: ¿hice mis páginas?, frase o pregunta del día, una actividad pendiente de la semana, botones "Me siento perdida" y "Estoy dándole vueltas", acceso al coach.
+  1. Hoy: ¿hice mis páginas? (con mis palabras de los últimos días), una actividad pendiente de la semana, botones "Me siento perdida" y "Estoy dándole vueltas".
   2. Mi semana: tema, conceptos clave parafraseados y mis actividades de la semana (ver abajo).
   3. Cita con el Artista: ideas, plan y registro.
-  4. Check-in semanal.
+  4. ~~Check-in semanal~~ (quitado el 28-oct-2026: lo hago a mano).
   5. Banco de ideas creativas.
-  6. Hablar con mi coach (chat).
+  6. ~~Hablar con mi coach (chat)~~ (descartado el 28-oct-2026).
   7. Mi camino: progreso visual de las 12 semanas (sendero o constelación de luces, por definir).
   8. Mi caja de herramientas: las técnicas que me han servido cuando me siento perdida.
 
@@ -79,7 +79,7 @@ Decisión del 18 de octubre de 2026: reemplaza la dirección anterior "ecléctic
 - Puedo marcarlas como hechas, editarlas y borrarlas.
 - Agregar una actividad debe ser rápido: un campo y un botón, sin formularios largos.
 - Las no hechas no cuentan como fallo. Al cerrar la semana puedo pasarlas a la siguiente si quiero.
-- El check-in semanal muestra cuáles hice.
+- Al pasar de semana elijo cuáles pendientes llevo a la siguiente; las demás quedan en su semana sin culpa. Las pendientes de semanas anteriores que no decidí siguen visibles en Semana.
 - Las ideas que propone el coach viven aparte, en el Banco de ideas.
 
 ## Técnico
@@ -89,8 +89,9 @@ Decisión del 18 de octubre de 2026: la app vive fuera de Claude, abierta en la 
 - Fase 1: un `index.html` servido por un servidor Node estático sin dependencias. Sin base de datos ni cuentas.
 - Persistencia: `localStorage` del navegador, en el dispositivo. Los datos no se sincronizan entre dispositivos. Exportar e importar en JSON y texto como respaldo.
 - Mis registros son privados: nunca se envían al servidor ni se suben al repositorio.
-- Chat con el coach (fase 2): requiere un backend propio con API de un modelo. Decidir antes clave, costo y cómo proteger el endpoint en una app sin inicio de sesión.
-- Fecha de inicio: lunes 12 de octubre de 2026. Guardarla para calcular en qué semana voy, con opción de pausar o reiniciar sin penalización.
+- Chat con el coach: descartado el 28 de octubre de 2026.
+- Fecha de inicio: lunes 12 de octubre de 2026.
+- Decisión del 28 de octubre de 2026: la semana NO avanza por fecha. Paso a la siguiente cuando yo lo decido, desde la pantalla Semana. La app guarda el día en que empezó cada semana. Si llevo dos semanas o más en una, lo menciona una vez, con cariño, sin contador. En Ajustes puedo corregir la semana o reiniciar.
 
 ## Forma de trabajar conmigo
 - Construir por fases: primero un MVP (Hoy con los botones de ayuda + Mi semana con mis actividades + Check-in), luego iterar.

@@ -7,7 +7,7 @@ Webapp personal que acompaña las 12 semanas de *El Camino del Artista* de Julia
 
 ## Estado
 
-**Fase 1 (MVP):** Hoy (páginas sí/no, pregunta del día, actividad pendiente, botones de ayuda), Mi semana (tema, síntesis y actividades propias) y Check-in semanal.
+**Fase 1 (MVP):** Hoy (páginas sí/no con palabras, actividad pendiente, botones de ayuda) y Mi semana (tema, síntesis, actividades propias y paso manual a la semana siguiente).
 
 ## Privacidad
 
