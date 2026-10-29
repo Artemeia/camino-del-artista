@@ -390,7 +390,7 @@ body.quiet .sky .aur.extra{display:none}
       <div class="dots" id="hoyDots"></div>
       <form class="star-row" id="wordForm" autocomplete="off">
         <label class="sr" for="pagesWord">Una palabra para cómo te sentiste</label>
-        <input type="text" id="pagesWord" maxlength="24" placeholder="una palabra para cómo te sentiste">
+        <input type="text" id="pagesWord" maxlength="24" placeholder="me sentí…">
         <button class="star-btn" type="submit" aria-label="Llevar la palabra a mi recorrido"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.6 6.3 6.9.6-5.2 4.5 1.6 6.7L12 17l-5.9 3.6 1.6-6.7-5.2-4.5 6.9-.6z"/></svg></button>
       </form>
     </section>
@@ -933,7 +933,6 @@ function renderHoy(w, wn, wk){
   const p = S.pages[t];
   $("#sky").classList.toggle("glow", !!(p && p.done));
   dots($("#hoyDots"), lastDays(7));
-  if(document.activeElement !== $("#pagesWord") && !$("#pagesWord").value) $("#pagesWord").placeholder = S.words[t] ? "hoy: " + S.words[t] : "una palabra para cómo te sentiste";
   $("#midNotice").hidden = !(w >= 5 && w <= 8);
 
   const body = $("#pendingBody"); body.replaceChildren();
