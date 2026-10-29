@@ -90,7 +90,7 @@ Decisión del 18 de octubre de 2026: la app vive fuera de Claude, abierta en la 
 - Persistencia: `localStorage` del navegador, en el dispositivo. Los datos no se sincronizan entre dispositivos. Exportar e importar en JSON y texto como respaldo.
 - Mis registros son privados: nunca se envían al servidor ni se suben al repositorio.
 - Chat con el coach: descartado el 28 de octubre de 2026.
-- Fecha de inicio: lunes 12 de octubre de 2026.
+- Fecha de inicio: lunes 19 de octubre de 2026 (reinicio; el primer intento empezó el 12). Semana 2 desde el lunes 26 de octubre.
 - Decisión del 28 de octubre de 2026: la semana NO avanza por fecha. Paso a la siguiente cuando yo lo decido, desde la pantalla Semana. La app guarda el día en que empezó cada semana. El paso es el mismo día; las semanas se muestran de lunes a domingo. Mi máximo es dos semanas: aviso el día 10 y el 14, que puedo cerrar; nunca avanza sola. Puedo deshacer el mismo día o corregir la semana en Ajustes.
 
 ## Forma de trabajar conmigo

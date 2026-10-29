@@ -58,7 +58,7 @@ Registro de decisiones y avance. Sin datos personales del proceso: esos viven so
 **Decisiones**
 - Semanas manuales: la semana avanza solo cuando ella lo decide, desde Semana ("Estoy lista para la semana N"). Al pasar elige qué pendientes lleva; las no elegidas quedan en su semana marcadas como dejadas.
 - Pendientes de semanas anteriores no decididos se muestran en Semana ("Traerlas aquí" / "Dejarlas ahí").
-- Migración: quedó en la semana 2 (donde ella estaba), con inicio de semana 2 el 19 de octubre. Ajustes permite corregir la semana o reiniciar. Se quitó "Pausar" (ya no tiene sentido).
+- Migración: quedó en la semana 2, calculada desde su fecha de inicio real (reinició el lunes 19 de octubre, así que la semana 2 empieza el 26). Corrección: en el chat se dijo por error que la semana 2 empezaba el 19. Ajustes permite corregir la semana o reiniciar. Se quitó "Pausar" (ya no tiene sentido).
 - Aviso suave si lleva 14 días o más en una semana (ritmo o resistencia), sin contador.
 - Palabras de las páginas: se guardaban, pero solo se veían en el check-in. Ahora aparecen en Hoy (últimos 7 días) y en la exportación de texto. Los puntos de Hoy muestran los últimos 7 días.
 - Quitados: pestaña y vista Coach, Check-in (lo hace a mano) y la pregunta "Para hoy". Los datos de check-ins antiguos siguen en el respaldo.
