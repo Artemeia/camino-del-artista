@@ -32,7 +32,7 @@ const SECURITY_HEADERS = {
     "script-src 'self' 'unsafe-inline'",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src https://fonts.gstatic.com",
-    "img-src 'self' data:",
+    "img-src 'self' data: blob:",
     "connect-src 'self'",
     "base-uri 'none'",
     "form-action 'none'",

@@ -111,6 +111,11 @@ section.view.active{display:block}
 .week-note p{margin:0; font-size:15px; line-height:1.45}
 .week-note button{margin-top:8px}
 .cita-saved{margin-top:8px; font-size:15px; color:var(--ink)}
+.thumbs{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px}
+.thumbs button.ph{width:84px; height:84px; padding:0; border:0; border-radius:14px; overflow:hidden; cursor:pointer; background:var(--line-2)}
+.thumbs img{width:100%; height:100%; object-fit:cover; display:block}
+.thumbs label.add{width:84px; height:84px; border-radius:14px; border:1.5px dashed var(--sec-border); color:var(--sec-ink); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; font-size:13px; font-weight:700; cursor:pointer; text-align:center}
+.photo-big{width:100%; max-height:62vh; object-fit:contain; border-radius:16px; margin-top:12px; background:var(--line-2)}
 .cita-saved b{display:block; font-family:var(--serif); font-size:18px; font-weight:600; color:var(--head)}
 section.view.in-l{animation:inL .28s ease}
 section.view.in-r{animation:inR .28s ease}
@@ -483,6 +488,22 @@ body.quiet .sky .aur.extra{display:none}
     </div>
     <div class="map" id="map"></div>
     <div class="world-card" id="worldCard" hidden></div>
+  </div>
+</div>
+
+<!-- ================= FOTO ================= -->
+<div class="sheet" id="photoSheet" role="dialog" aria-modal="true" aria-labelledby="photoHeading">
+  <div class="wrap">
+    <div class="bar">
+      <div class="eyebrow" id="photoHeading">Recuerdo</div>
+      <button class="close" id="closePhoto" aria-label="Cerrar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+    <img class="photo-big" id="photoBig" alt="">
+    <div class="pair" style="margin-top:16px">
+      <button class="pill pri" type="button" id="photoSave">Guardar copia</button>
+      <button class="pill sec" type="button" id="photoDel">Borrar</button>
+    </div>
+    <p class="small" style="margin-top:10px">La foto vive dentro de la app. Con «Guardar copia» la puedes dejar también en tu galería.</p>
   </div>
 </div>
 
@@ -1012,6 +1033,99 @@ function renderWeekNote(wn){
   box.replaceChildren(el("p", {}, msg), el("button", {type:"button", class:"text-link", onclick:() => { S.dismissed[k] = true; save(); render(); }}, "Entendido"));
 }
 
+/* ================= Fotos de la Cita con el Artista =================
+   Se guarda una copia comprimida en IndexedDB, solo en este teléfono. La original queda en la galería.
+   PHOTOS es la copia en memoria para dibujar sin esperar. */
+const MAX_PHOTOS = 3;
+let PHOTOS = [];
+function idb(){
+  return new Promise((ok, ko) => {
+    const r = indexedDB.open("camino-fotos", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("fotos", {keyPath:"id"});
+    r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
+  });
+}
+async function dbtx(mode, fn){
+  const db = await idb();
+  return new Promise((ok, ko) => {
+    const t = db.transaction("fotos", mode), st = t.objectStore("fotos"); let out;
+    const req = fn(st); if(req) req.onsuccess = () => { out = req.result; };
+    t.oncomplete = () => { db.close(); ok(out); }; t.onerror = () => { db.close(); ko(t.error); };
+  });
+}
+async function loadPhotos(){
+  try{
+    const all = await dbtx("readonly", st => st.getAll());
+    PHOTOS.forEach(p => URL.revokeObjectURL(p.url));
+    PHOTOS = (all || []).map(p => ({...p, url:URL.createObjectURL(p.blob)})).sort((a,b) => a.added < b.added ? -1 : 1);
+    render();
+  }catch(e){ console.error(e); }
+}
+const photosOf = w => PHOTOS.filter(p => p.week === w);
+// Reduce la foto a máximo 1600 px y la guarda como JPEG: queda liviana y nítida en el teléfono.
+function compress(file){
+  return new Promise((ok, ko) => {
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement("canvas"); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+      c.toBlob(b => b ? ok(b) : ko(new Error("sin imagen")), "image/jpeg", 0.82);
+    };
+    img.onerror = () => { URL.revokeObjectURL(u); ko(new Error("formato")); };
+    img.src = u;
+  });
+}
+async function addPhotos(wn, files){
+  const room = MAX_PHOTOS - photosOf(wn).length;
+  const list = [...files].slice(0, Math.max(0, room));
+  if(!list.length){ toast("Ya tienes " + MAX_PHOTOS + " fotos en esta cita."); return; }
+  let n = 0;
+  for(const f of list){
+    try{
+      const blob = await compress(f);
+      const rec = {id:uid(), week:wn, added:new Date().toISOString(), blob};
+      await dbtx("readwrite", st => st.put(rec)); n++;
+    }catch(e){ toast("No pude leer una de las fotos. Prueba con otra."); }
+  }
+  if(files.length > list.length) toast("Guardé " + n + ". El máximo son " + MAX_PHOTOS + " por cita.");
+  else if(n) toast(n === 1 ? "La foto quedó en tu recorrido." : "Las fotos quedaron en tu recorrido.");
+  try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+  await loadPhotos();
+}
+function thumbs(w, canAdd){
+  const box = el("div", {class:"thumbs"});
+  for(const p of photosOf(w)) box.append(el("button", {type:"button", class:"ph", "aria-label":"Ver foto", onclick:() => openPhoto(p.id)}, el("img", {src:p.url, alt:""})));
+  if(canAdd && photosOf(w).length < MAX_PHOTOS){
+    const input = el("input", {type:"file", accept:"image/*", multiple:true, class:"sr", onchange:e => { const fs = e.target.files; if(fs && fs.length) addPhotos(w, fs); e.target.value = ""; }});
+    box.append(el("label", {class:"add"}, input, el("span", {style:"font-size:24px; line-height:1"}, "+"), el("span", {}, "Agregar foto")));
+  }
+  return box;
+}
+let photoOpen = null;
+function openPhoto(id){
+  const p = PHOTOS.find(x => x.id === id); if(!p) return;
+  photoOpen = p; $("#photoBig").src = p.url; openSheet("#photoSheet");
+}
+$("#closePhoto").addEventListener("click", () => closeSheet("#photoSheet"));
+$("#photoDel").addEventListener("click", async () => {
+  if(!photoOpen || !confirm("¿Borrar esta foto de la app? Si está en tu galería, ahí sigue.")) return;
+  const id = photoOpen.id; closeSheet("#photoSheet");
+  try{ await dbtx("readwrite", st => st.delete(id)); }catch(e){}
+  await loadPhotos(); if(!$("#worldCard").hidden && photoOpen) showWorld(photoOpen.week); toast("Foto borrada de la app.");
+});
+$("#photoSave").addEventListener("click", async () => {
+  if(!photoOpen) return;
+  const name = `cita-semana-${photoOpen.week}-${iso(new Date(photoOpen.added))}.jpg`;
+  const file = new File([photoOpen.blob], name, {type:"image/jpeg"});
+  try{
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file]}); return; }
+  }catch(e){ if(e && e.name === "AbortError") return; }
+  download(name, photoOpen.blob, "image/jpeg");
+});
+const toDataURL = b => new Promise(ok => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(b); });
+function fromDataURL(u){ const [h, b] = u.split(","), bin = atob(b), a = new Uint8Array(bin.length); for(let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return new Blob([a], {type:(h.match(/data:([^;]+)/) || [])[1] || "image/jpeg"}); }
+
 /* Cita con el Artista de la semana: cuándo fue y qué hice. */
 let citaEdit = false;
 function renderCita(wn){
@@ -1020,6 +1134,7 @@ function renderCita(wn){
   const agenda = el("button", {type:"button", class:"text-link", style:"margin-top:10px; color:var(--eyebrow)", onclick:() => openEv({kind:"cita"})}, "Agendar la próxima cita");
   if(c && !citaEdit){
     box.append(el("div", {class:"cita-saved"}, el("b", {}, c.date ? fmt(c.date, {weekday:"long", day:"numeric", month:"long"}) : "Esta semana"), c.note || null),
+      thumbs(wn, true),
       el("div", {style:"display:flex; gap:18px"}, el("button", {type:"button", class:"text-link", style:"margin-top:10px", onclick:() => { citaEdit = true; render(); }}, "Editar"), agenda));
     return;
   }
@@ -1028,6 +1143,7 @@ function renderCita(wn){
   box.append(el("p", {class:"small", style:"margin:2px 0 6px"}, "Sola, unas dos horas, para jugar."),
     el("label", {class:"f", for:"citaDate"}, "¿Cuándo fue?"), date,
     el("label", {class:"f", for:"citaNote"}, "¿Cómo fue?"), note,
+    thumbs(wn, true),
     el("div", {class:"pair", style:"margin-top:12px"},
       el("button", {type:"button", class:"pill pri", onclick:() => {
         if(!date.value && !note.value.trim()) return;
@@ -1545,7 +1661,8 @@ function showWorld(w){
     el("h4", {}, "Páginas"), el("p", {style:"margin:0; font-size:15px"}, pages ? `${pages} ${pages === 1 ? "mañana" : "mañanas"}` : "Esta vez no hubo, y está bien."),
     words.length ? [el("h4", {}, "Tus estrellas"), el("p", {class:"words", style:"margin:0"}, words.map(x => x.w).join(" · "))] : null,
     acts.length ? [el("h4", {}, "Lo que hiciste"), el("ul", {}, acts.map(a => el("li", {}, a.title + (a.doneAt ? " · " + short(a.doneAt) : ""))))] : null,
-    cita ? [el("h4", {}, "Cita con el Artista"), el("p", {style:"margin:0; font-size:15px"}, (cita.date ? short(cita.date) + (cita.note ? " · " : "") : "") + (cita.note || ""))] : null].flat().filter(Boolean));
+    cita ? [el("h4", {}, "Cita con el Artista"), el("p", {style:"margin:0; font-size:15px"}, (cita.date ? short(cita.date) + (cita.note ? " · " : "") : "") + (cita.note || ""))] : null,
+    photosOf(w).length ? [cita ? null : el("h4", {}, "Recuerdos"), thumbs(w, false)] : null].flat().filter(Boolean));
   card.hidden = false; card.scrollIntoView({block:"nearest", behavior:"smooth"});
 }
 $("#openMap").addEventListener("click", openMap);
@@ -1573,10 +1690,15 @@ $("#restartBtn").addEventListener("click", () => {
   save(); render(); renderSettings(); toast("Nuevo comienzo: semana uno.");
 });
 function download(name, text, type){
-  const a = el("a", {href:URL.createObjectURL(new Blob([text], {type})), download:name});
+  const a = el("a", {href:URL.createObjectURL(text instanceof Blob ? text : new Blob([text], {type})), download:name});
   document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
 }
-$("#exportJson").addEventListener("click", () => download(`camino-${today()}.json`, JSON.stringify(S, null, 2), "application/json"));
+$("#exportJson").addEventListener("click", async () => {
+  // El respaldo incluye las fotos, para que nada se pierda si cambias de teléfono.
+  const photos = [];
+  for(const p of PHOTOS) photos.push({id:p.id, week:p.week, added:p.added, data:await toDataURL(p.blob)});
+  download(`camino-${today()}.json`, JSON.stringify({...S, photos}, null, 2), "application/json");
+});
 $("#exportTxt").addEventListener("click", () => {
   const L = ["El Camino del Artista · mis registros", "Inicio: " + S.startDate, ""];
   for(let w = 1; w <= S.week; w++){
@@ -1601,8 +1723,15 @@ $("#importJson").addEventListener("change", async e => {
   try{
     const data = JSON.parse(await f.text());
     if(!data || data.version !== 1 || !data.startDate) throw new Error();
-    if(!confirm("Esto reemplaza los datos de este dispositivo por los del archivo. ¿Seguir?")) return;
-    S = Object.assign(clone(DEFAULT), data); sanitize(); save(); applyTheme(); render(); renderSettings(); toast("Respaldo importado.");
+    if(!confirm("Esto reemplaza los datos de este dispositivo por los del archivo" + (Array.isArray(data.photos) ? ", también las fotos" : "") + ". ¿Seguir?")) return;
+    const photos = Array.isArray(data.photos) ? data.photos : null; delete data.photos;
+    S = Object.assign(clone(DEFAULT), data); sanitize(); save(); applyTheme(); render(); renderSettings();
+    if(photos){
+      await dbtx("readwrite", st => st.clear());
+      for(const p of photos){ try{ if(typeof p.data === "string" && p.data.startsWith("data:image/")) { const blob = fromDataURL(p.data); await dbtx("readwrite", st => st.put({id:String(p.id || uid()), week:Number(p.week) || 1, added:String(p.added || new Date().toISOString()), blob})); } }catch(e){} }
+      await loadPhotos();
+    }
+    toast("Respaldo importado.");
   }catch(err){ toast("Ese archivo no parece un respaldo válido."); }
   e.target.value = "";
 });
@@ -1666,6 +1795,7 @@ document.addEventListener("visibilitychange", () => { if(document.visibilityStat
 window.addEventListener("pageshow", checkUpdate);
 setInterval(checkUpdate, 30*60*1000);
 safe("el tema", applyTheme); render();
+if(window.indexedDB) loadPhotos();
 let lastDay = today();
 const refresh = () => { if(today() !== lastDay){ lastDay = today(); render(); } };
 setInterval(() => { refresh(); safe("Agenda de hoy", renderTodayNote); }, 60000);

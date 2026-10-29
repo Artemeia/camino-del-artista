@@ -76,7 +76,13 @@ Registro de decisiones y avance. Sin datos personales del proceso: esos viven so
 - Deslizar a los lados cambia entre Hoy y Semana.
 - Mi recorrido: botón (no pestaña) que abre un mapa tipo videojuego, de abajo hacia arriba, con las 12 semanas como mundos. Estrellas = palabras. Al tocar un mundo: rango de fechas, páginas, palabras, actividades hechas con fecha y cita.
 
+**Fotos (mismo día)**
+- Ella usa la app solo desde el ícono de la pantalla de inicio (modo app independiente): todos sus datos están en ese espacio.
+- Hasta 3 fotos por Cita con el Artista. Se eligen de la galería o se toman con la cámara (el teléfono ofrece ambas). La app guarda una copia comprimida (máx. 1600 px, JPEG) en IndexedDB, solo en el teléfono; la original sigue en la galería.
+- Visor: "Guardar copia" (compartir/guardar en la galería) y "Borrar". Las fotos aparecen también en el mundo de esa semana del recorrido.
+- El respaldo JSON incluye las fotos y el importar las restaura. CSP: img-src permite blob:.
+
 **Pendiente**
-- Fotos de la Cita con el Artista (decidido: más adelante). Requiere IndexedDB y fotos comprimidas; solo en el teléfono.
+- "Ver mi semana": reporte por semana para guardar como PDF (ofrecido, no confirmado).
 - Banco de ideas.
 - Decidir si el repositorio queda público o privado.
