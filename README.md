@@ -17,10 +17,11 @@ La app no tiene backend de datos. Todo lo que se registra vive en el `localStora
 ## Correr en local
 
 ```bash
-npm start   # http://localhost:3000
+npm run build
+npx wrangler pages dev dist   # http://localhost:8788
 ```
 
-Sin dependencias. Requiere Node 18 o superior.
+La app no tiene dependencias. Wrangler solo se usa para probarla en local, con las mismas cabeceras de Cloudflare. Requiere Node 18 o superior.
 
 ## Despliegue en Cloudflare Pages
 
@@ -30,5 +31,3 @@ Proyecto de Pages conectado a este repo: cada push a `main` despliega automátic
 - Carpeta de salida: `dist`
 
 El build copia `public/` a `dist/`, escribe la versión en la página y crea `/version` y `/salud`. Las cabeceras están en `public/_headers`.
-
-`server.js` es el servidor que usa Railway. Se mantiene mientras dure la mudanza y sirve para correr la app en local.

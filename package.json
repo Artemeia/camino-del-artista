@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Compañera personal para las 12 semanas de El Camino del Artista",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js",
     "build": "node scripts/build.js"
   },
   "engines": {
