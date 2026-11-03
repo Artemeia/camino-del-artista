@@ -85,7 +85,7 @@ Decisión del 18 de octubre de 2026: reemplaza la dirección anterior "ecléctic
 ## Técnico
 Decisión del 18 de octubre de 2026: la app vive fuera de Claude, abierta en la web sin iniciar sesión. Reemplaza la dirección anterior "una sola página publicada como artifact".
 
-- Código en GitHub (`Artemeia/camino-del-artista`), desplegado en Railway desde la rama `main`.
+- Código en GitHub (`Artemeia/camino-del-artista`), desplegado en Cloudflare Pages desde la rama `main` (mudanza del 3 de noviembre de 2026; Railway sigue activo hasta confirmar el paso de los datos).
 - Fase 1: un `index.html` servido por un servidor Node estático sin dependencias. Sin base de datos ni cuentas.
 - Persistencia: `localStorage` del navegador, en el dispositivo. Los datos no se sincronizan entre dispositivos. Exportar e importar en JSON y texto como respaldo.
 - Mis registros son privados: nunca se envían al servidor ni se suben al repositorio.

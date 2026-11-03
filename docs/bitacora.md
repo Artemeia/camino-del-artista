@@ -86,3 +86,15 @@ Registro de decisiones y avance. Sin datos personales del proceso: esos viven so
 - "Ver mi semana": reporte por semana para guardar como PDF (ofrecido, no confirmado).
 - Banco de ideas.
 - Decidir si el repositorio queda público o privado.
+
+## 2026-11-03
+
+**Mudanza de Railway a Cloudflare Pages (en curso)**
+- Nueva URL: https://camino-del-artista.pages.dev (proyecto de Pages conectado a `main`; build `npm run build`, salida `dist`).
+- El build copia `public/`, escribe la versión del commit y crea `/version` y `/salud`. Las cabeceras viven en `public/_headers`.
+- Railway sigue activo como respaldo. `server.js` no se borra hasta terminar.
+- Los datos están atados al dominio: hay que exportar desde el ícono viejo e importar desde el ícono nuevo.
+- Exportar JSON desde el ícono ahora usa compartir, con descarga como alternativa.
+
+**Pendiente de la mudanza**
+- Confirmar el paso de datos en el teléfono, usar la app nueva unos días, apagar Railway y borrar `server.js`.
