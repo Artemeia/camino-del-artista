@@ -22,7 +22,13 @@ npm start   # http://localhost:3000
 
 Sin dependencias. Requiere Node 18 o superior.
 
-## Despliegue en Railway
+## Despliegue en Cloudflare Pages
 
-Railway detecta Node y ejecuta `npm start`. El servidor lee el puerto desde `PORT`. Ruta de salud: `/salud`.
-Con el repo conectado al servicio, cada push a `main` despliega automáticamente.
+Proyecto de Pages conectado a este repo: cada push a `main` despliega automáticamente.
+
+- Comando de build: `npm run build`
+- Carpeta de salida: `dist`
+
+El build copia `public/` a `dist/`, escribe la versión en la página y crea `/version` y `/salud`. Las cabeceras están en `public/_headers`.
+
+`server.js` es el servidor que usa Railway. Se mantiene mientras dure la mudanza y sirve para correr la app en local.
