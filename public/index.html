@@ -1697,7 +1697,15 @@ $("#exportJson").addEventListener("click", async () => {
   // El respaldo incluye las fotos, para que nada se pierda si cambias de teléfono.
   const photos = [];
   for(const p of PHOTOS) photos.push({id:p.id, week:p.week, added:p.added, data:await toDataURL(p.blob)});
-  download(`camino-${today()}.json`, JSON.stringify({...S, photos}, null, 2), "application/json");
+  const name = `camino-${today()}.json`, json = JSON.stringify({...S, photos}, null, 2);
+  // Desde el ícono de la pantalla de inicio, compartir es más fiable que descargar.
+  if(matchMedia("(display-mode: standalone)").matches || navigator.standalone){
+    const file = new File([json], name, {type:"application/json"});
+    try{
+      if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file]}); return; }
+    }catch(e){ if(e && e.name === "AbortError") return; }
+  }
+  download(name, json, "application/json");
 });
 $("#exportTxt").addEventListener("click", () => {
   const L = ["El Camino del Artista · mis registros", "Inicio: " + S.startDate, ""];
